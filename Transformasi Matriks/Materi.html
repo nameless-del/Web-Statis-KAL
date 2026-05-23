@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformasi Matriks - Refleksi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Kiri */
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        /* Bagian Profil */
+        .profile-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid var(--active-item-bg);
+        }
+
+        .profile-info {
+            width: 100%;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .profile-info strong {
+            color: var(--text-heading);
+            display: inline-block;
+            width: 90px;
+        }
+
+        .sidebar-left h2 {
+            font-size: 14px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-items li {
+            font-size: 14px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-items li.active {
+            background-color: var(--active-item-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        /* Konten Utama */
+        .main-content {
+            flex-grow: 1;
+            padding: 50px 80px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .main-content h1 {
+            color: var(--text-heading);
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 700px;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        h2.section-title {
+            color: var(--text-heading);
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        h3.step-title {
+            color: var(--text-heading);
+            font-size: 16px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        ul.content-list, ol.content-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul.content-list li, ol.content-list li {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        strong {
+            color: var(--text-heading);
+        }
+
+        .equation-container {
+            font-size: 16px;
+            margin: 20px 0;
+            overflow-x: auto;
+            color: var(--text-heading);
+        }
+
+        /* Sidebar Kanan (Table of Contents) */
+        .sidebar-right {
+            width: 250px;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sidebar-right h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sidebar-right h3::after {
+            content: '⌄';
+            margin-left: 5px;
+            font-size: 16px;
+            transform: translateY(-2px);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                padding: 40px;
+            }
+        }
+        /* Wadah untuk menaruh tombol di kanan */
+        .wadah-tombol-bawah {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-color); /* Garis batas tipis */
+        }
+
+        /* Desain Tombol Simulasi */
+        .btn-simulasi {
+            display: inline-flex;
+            align-items: center;
+            background-color: #28a745; /* Warna hijau agar mengundang untuk diklik */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-simulasi:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic">
+            <div class="profile-info">
+                  <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+
+        <h2>Tugas KAL</h2>
+        <ul class="nav-items">
+            <li class="active">Transformasi Matriks</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+     <div class="content-header">
+            <h1>Transformasi Matriks: Refleksi Sumbu Y</h1>
+
+            <button class="download-btn" title="Download">📥</button>
+        </div>
+        </div>
+
+        <h2 class="section-title" id="sec-1">1. Konsep Dasar Transformasi Matriks (Refleksi)</h2>
+        <p>Di dalam ilmu komputer dan grafis, memindahkan titik koordinat satu per satu menggunakan operator matematika biasa (seperti $x = -x$) sangat tidak efisien jika objeknya rumit (seperti karakter game yang memiliki ribuan titik).</p>
+        <p>Solusinya adalah menggunakan <strong>Transformasi Matriks</strong>. Komputer memiliki sebuah "mesin pencetak" berupa matriks standar yang bisa mengubah posisi objek secara instan.</p>
+        <p>Untuk kasus <strong>Refleksi (Pencerminan) terhadap Sumbu Y</strong>, matriks standarnya adalah:</p>
+        
+        <div class="equation-container">
+            $$ 
+            \begin{bmatrix} 
+            -1 & 0 \\ 
+            0 & 1 
+            \end{bmatrix} 
+            $$
+        </div>
+        
+        <p><strong>Cara kerjanya:</strong></p>
+        <ul class="content-list">
+            <li>Baris atas $[-1, 0]$ bertugas membalikkan nilai Sumbu $X$ (Sumbu $X$ dikali $-1$).</li>
+            <li>Baris bawah $[0, 1]$ bertugas mempertahankan nilai Sumbu $Y$ (Sumbu $Y$ dikali $1$ agar tetap sama).</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-2">2. Penjelasan Contoh Inputan Koordinat</h2>
+        <p>Sesuai dengan animasi interaktif yang telah dibuat, kita memasukkan 4 titik koordinat untuk membentuk sebuah bangun segi empat:</p>
+        
+        <ul class="content-list">
+            <li>Titik 1: $(-4, 1)$</li>
+            <li>Titik 2: $(-2, 1)$</li>
+            <li>Titik 3: $(-2, 3)$</li>
+            <li>Titik 4: $(-4, 3)$</li>
+        </ul>
+
+        <p>Untuk diproses oleh komputer, keempat titik ini tidak dimasukkan satu per satu, melainkan <strong>digabungkan menjadi satu matriks utuh</strong>. Aturan penyusunannya adalah: Baris pertama khusus untuk semua nilai $X$, dan baris kedua khusus untuk semua nilai $Y$.</p>
+        <p>Maka, Matriks Objek (Input) yang terbentuk adalah:</p>
+
+        <div class="equation-container">
+            $$ 
+            \begin{bmatrix} 
+            -4 & -2 & -2 & -4 \\ 
+            1 & 1 & 3 & 3 
+            \end{bmatrix} 
+            $$
+        </div>
+
+        <h2 class="section-title" id="sec-3">3. Proses Transformasi (Perkalian Baris × Kolom)</h2>
+        <p>Transformasi terjadi ketika Matriks Standar dikalikan dengan Matriks Objek Inputan. Di dalam kode JavaScript, ini diselesaikan melalui fungsi perkalian baris dikali kolom.</p>
+        
+        <div class="equation-container">
+            $$ 
+            \begin{bmatrix} 
+            -1 & 0 \\ 
+            0 & 1 
+            \end{bmatrix} 
+            \begin{bmatrix} 
+            -4 & -2 & -2 & -4 \\ 
+            1 & 1 & 3 & 3 
+            \end{bmatrix} 
+            $$
+        </div>
+
+        <p>Mari kita ambil contoh perhitungan manual untuk kolom pertama (Titik 1):</p>
+        <ul class="content-list">
+            <li>$X$ Baru = $(-1 \times -4) + (0 \times 1) = 4 + 0 = 4$</li>
+            <li>$Y$ Baru = $(0 \times -4) + (1 \times 1) = 0 + 1 = 1$</li>
+        </ul>
+
+        <p>Hasilnya adalah titik baru di koordinat $(4, 1)$. Komputer akan mengulangi perhitungan ini secara bersamaan untuk Titik 2, 3, dan 4, sehingga menghasilkan <strong>Matriks Bayangan (Hasil)</strong>:</p>
+
+        <div class="equation-container">
+            $$ 
+            \begin{bmatrix} 
+            4 & 2 & 2 & 4 \\ 
+            1 & 1 & 3 & 3 
+            \end{bmatrix} 
+            $$
+        </div>
+
+        <h2 class="section-title" id="sec-4">4. Analisis Jenis Matriks</h2>
+        <p>Di dalam Aljabar Linear, matriks diberi nama berdasarkan jumlah Ordo-nya (Baris $\times$ Kolom). Program mendeteksi dua jenis matriks yang berbeda:</p>
+        
+        <ul class="content-list">
+            <li><strong>Matriks Transformasi (Cermin):</strong><br>Memiliki 2 baris dan 2 kolom (Ordo $2 \times 2$). Karena jumlah baris dan kolomnya sama persis ($2 = 2$), maka ini disebut sebagai <strong>Matriks Persegi (Square Matrix)</strong>.</li>
+            <li><strong>Matriks Input Objek & Matriks Bayangan:</strong><br>Memiliki 2 baris (Sumbu $X$ dan $Y$) dan 4 kolom (karena ada 4 titik sudut). Karena jumlah baris dan kolomnya tidak sama ($2 \neq 4$), maka matriks berordo $2 \times 4$ ini masuk dalam kategori <strong>Matriks Persegi Panjang (Rectangular Matrix)</strong>.</li>
+        </ul>
+        <div class="wadah-tombol-bawah">
+            <!-- Atribut target="_blank" akan membuka simulasi di tab baru -->
+            <a href="simulasi.html" target="_blank" class="btn-simulasi">
+                🎮 Coba Simulasi Interaktif &rarr;
+            </a>
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>CONTENTS</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">1. Konsep Dasar Transformasi</a></li>
+            <li><a href="#sec-2">2. Inputan Koordinat</a></li>
+            <li><a href="#sec-3">3. Proses Transformasi</a></li>
+            <li><a href="#sec-4">4. Analisis Jenis Matriks</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rangkuman: Sistem Persamaan Linear</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Kiri */
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-y: auto; /* Ditambahkan agar sidebar bisa di-scroll jika layar kecil */
+        }
+
+        /* --- CSS TAMBAHAN UNTUK PROFIL --- */
+        .profile-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid var(--active-item-bg);
+        }
+
+        .profile-info {
+            width: 100%;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .profile-info strong {
+            color: var(--text-heading);
+            display: inline-block;
+            width: 90px;
+        }
+        /* --- AKHIR CSS PROFIL --- */
+
+        .sidebar-left h2 {
+            font-size: 14px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-items li {
+            font-size: 14px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-items li.active {
+            background-color: var(--active-item-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        /* Konten Utama */
+        .main-content {
+            flex-grow: 1;
+            padding: 50px 80px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .main-content h1 {
+            color: var(--text-heading);
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 600px;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        h2.section-title {
+            color: var(--text-heading);
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        ul.content-list, ol.content-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul.content-list li, ol.content-list li {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        strong {
+            color: var(--text-heading);
+        }
+
+        /* Container Rumus agar (1) berada di ujung kanan */
+        .equation-container {
+            font-size: 16px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        /* Sidebar Kanan (Table of Contents) */
+        .sidebar-right {
+            width: 250px;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sidebar-right h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sidebar-right h3::after {
+            content: '⌄';
+            margin-left: 5px;
+            font-size: 16px;
+            transform: translateY(-2px);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Responsiveness ringan */
+        @media (max-width: 1024px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic">
+            <div class="profile-info">
+                <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+        <h2>Rangkuman Aljabar Linear</h2>
+        <ul class="nav-items">
+            <li class="active">Rangkuman: Sistem Persamaan Linear</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Rangkuman: Sistem Persamaan Linear</h1>
+            <button class="download-btn" title="Download">📥</button>
+        </div>
+
+        <p>Berdasarkan materi dari tautan komputasi aljabar linear tersebut, berikut adalah rangkuman mengenai konsep <strong>Sistem Persamaan Linear</strong>:</p>
+
+        <h2 class="section-title" id="sec-1">1. Definisi Persamaan Linear</h2>
+        <p>Sebuah persamaan linear dalam $n$ variabel ($x_1, x_2, \dots, x_n$) adalah persamaan yang dapat disederhanakan ke dalam bentuk baku:</p>
+        
+        <div class="equation-container">
+            $$ a_1x_1 + a_2x_2 + \dots + a_nx_n = b \tag{1} $$
+        </div>
+
+        <p>di mana $a_1, a_2, \dots, a_n$ adalah bilangan real.</p>
+        <ul class="content-list">
+            <li><strong>Homogen</strong>: Persamaan disebut homogen jika konstanta $b = 0$.</li>
+            <li><strong>Nonhomogen</strong>: Persamaan disebut nonhomogen jika konstanta $b \neq 0$.</li>
+            <li><strong>Nonlinear</strong>: Persamaan yang tidak dapat disederhanakan ke bentuk baku menggunakan penjumlahan dan pengurangan dasar (misal: terdapat variabel kuadrat atau fungsi trigonometri seperti $\sin$).</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-2">2. Sistem Persamaan Linear</h2>
+        <p>Sistem persamaan linear merupakan himpunan atau kumpulan dari beberapa persamaan linear.</p>
+        <ul class="content-list">
+            <li>Sistem ini dikatakan <strong>homogen</strong> apabila seluruh persamaan di dalam himpunan tersebut adalah persamaan homogen.</li>
+            <li>Dalam penulisan matematisnya, sistem ini sering menggunakan indeks ganda $a_{ij}$, di mana $i$ menunjukkan posisi baris (persamaan ke-$i$) dan $j$ menunjukkan posisi kolom (variabel ke-$j$).</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-3">3. Solusi Sistem Persamaan Linear</h2>
+        <p>Solusi dari suatu sistem linear adalah himpunan nilai $(s_1, s_2, \dots, s_n)$ yang apabila disubstitusikan akan memenuhi <strong>semua</strong> persamaan dalam sistem tersebut. Terdapat tepat 3 kemungkinan himpunan solusi untuk sistem linear:</p>
+        <ol class="content-list">
+            <li><strong>Tidak ada solusi</strong> (Himpunan kosong): Sistem diklasifikasikan sebagai sistem <strong>tidak konsisten</strong>.</li>
+            <li><strong>Memiliki tepat satu solusi</strong> (Solusi tunggal): Sistem diklasifikasikan sebagai sistem <strong>konsisten</strong>.</li>
+            <li><strong>Memiliki tak hingga banyak solusi</strong>: Sistem diklasifikasikan sebagai sistem <strong>konsisten</strong>.</li>
+        </ol>
+
+        <h2 class="section-title" id="sec-4">4. Representasi Matriks</h2>
+        <p>Sistem persamaan linear dapat direpresentasikan secara ringkas dengan notasi $\mathcal{LS}(A, \mathbf{b})$.</p>
+        <ul class="content-list">
+            <li><strong>$A$</strong> merupakan <strong>Matriks Koefisien</strong>, yaitu matriks yang berisi nilai-nilai koefisien dari variabel-variabel dalam sistem.</li>
+            <li><strong>$\mathbf{b}$</strong> merupakan <strong>Vektor Konstanta</strong>, yaitu vektor kolom yang berisi nilai dari konstanta (ruas kanan) masing-masing persamaan.</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-5">5. Matriks Augmentasi (Augmented Matrix)</h2>
+        <p>Untuk mempermudah perhitungan, sistem persamaan linear direpresentasikan menggunakan matriks augmentasi yang ditulis dengan simbol $[A \mid \mathbf{b}]$.</p>
+        <ul class="content-list">
+            <li>Matriks ini dibentuk dengan menggabungkan kolom-kolom matriks koefisien $A$ dan menambahkan vektor konstanta $\mathbf{b}$ sebagai kolom terakhir (kolom ke-$n+1$).</li>
+            <li>Matriks ini merangkum seluruh informasi penting dari sebuah sistem persamaan dengan mengabaikan penulisan nama variabelnya, sehingga posisinya murni ditentukan oleh letak baris dan kolom.</li>
+        </ul>
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>CONTENTS</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">1. Definisi Persamaan Linear</a></li>
+            <li><a href="#sec-2">2. Sistem Persamaan Linear</a></li>
+            <li><a href="#sec-3">3. Solusi Sistem Persamaan Linear</a></li>
+            <li><a href="#sec-4">4. Representasi Matriks</a></li>
+            <li><a href="#sec-5">5. Matriks Augmentasi (Augmented Matrix)</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>

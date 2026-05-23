@@ -1,0 +1,112 @@
+:root {
+    --bg-color: #161616;
+    --sidebar-bg: #161616;
+    --text-main: #d1d1d1;
+    --text-heading: #ffffff;
+    --active-item-bg: #323b49;
+    --border-color: #2e2e2e;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar-left {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    padding: 30px 20px;
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid var(--active-item-bg);
+}
+
+.profile-info {
+    width: 100%;
+}
+
+.profile-info p {
+    font-size: 13px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.profile-info strong {
+    color: var(--text-heading);
+    display: inline-block;
+    width: 90px;
+}
+
+.sidebar-left h2 {
+    font-size: 14px;
+    color: var(--text-heading);
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.nav-items {
+    list-style: none;
+}
+
+.nav-items li {
+    margin-bottom: 5px;
+}
+
+.nav-items a {
+    display: block;
+    font-size: 14px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Mengatur state active dan hover */
+.nav-items li.active a, .nav-items a:hover {
+    background-color: var(--active-item-bg);
+    color: var(--text-heading);
+    font-weight: 600;
+}
+
+.iframe-container {
+    flex-grow: 1;
+    height: 100vh;
+    background-color: var(--bg-color);
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}

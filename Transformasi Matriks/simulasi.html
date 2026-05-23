@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Animasi Transformasi Matriks & Deteksi Jenis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif; display: flex; background-color: #f4f4f9; padding: 20px; gap: 15px; margin: 0; height: 100vh; box-sizing: border-box;
+        }
+        
+        .panel-kontrol { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 300px; flex-shrink: 0; overflow-y: auto; }
+        .grup-input { margin-bottom: 12px; }
+        .grup-input label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; }
+        .grup-koordinat { display: flex; gap: 10px; }
+        .grup-koordinat input { width: 50%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .btn-terapkan { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; margin-bottom: 20px; }
+        .btn-terapkan:hover { background-color: #218838; }
+
+        .kontrol-arah { text-align: center; padding-top: 15px; border-top: 2px dashed #ccc; }
+        .d-pad { display: grid; grid-template-columns: 70px 70px 70px; grid-template-rows: 45px 45px 45px; gap: 5px; justify-content: center; margin-top: 10px; }
+        .d-pad button { cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; width: 100%; height: 100%; }
+        .d-pad button:hover { background-color: #0056b3; }
+        .btn-atas { grid-column: 2; grid-row: 1; }
+        .btn-kiri { grid-column: 1; grid-row: 2; }
+        .btn-kanan { grid-column: 3; grid-row: 2; }
+        .btn-bawah { grid-column: 2; grid-row: 3; }
+
+        .wadah-kanvas { flex-grow: 1; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: 1px solid #ccc; overflow: auto; position: relative; }
+        canvas { display: block; cursor: crosshair; }
+
+        .panel-edukasi { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 420px; flex-shrink: 0; overflow-y: auto; }
+        .kotak-matriks { background: #eef2f5; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        
+        .tampilan-matriks { display: flex; align-items: center; justify-content: center; gap: 10px; font-family: monospace; font-size: 16px; font-weight: bold; margin: 15px 0; }
+        .kurung-matriks { border-left: 2px solid black; border-right: 2px solid black; padding: 5px 8px; text-align: center; }
+        .baris-matriks { display: flex; gap: 12px; margin: 5px 0; justify-content: center; }
+        .baris-matriks span { width: 22px; text-align: right; display: inline-block; }
+
+        .kotak-deteksi { background: #e2f0d9; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 5px solid #28a745; }
+        /* Tombol Link Simulasi */
+        .btn-simulasi {
+            display: inline-flex;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 15px;
+            transition: background 0.2s;
+        }
+        
+        .btn-simulasi:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-kontrol">
+        <h3 style="margin-top: 0; margin-bottom: 10px;">Pengaturan Kanvas</h3>
+        <div class="grup-koordinat" style="margin-bottom: 15px;">
+            <div style="width: 50%;"><label>Batas X</label><input type="number" id="inputBatasX" value="8"></div>
+            <div style="width: 50%;"><label>Batas Y</label><input type="number" id="inputBatasY" value="8"></div>
+        </div>
+
+        <h3 style="margin-top: 0; margin-bottom: 10px; border-top: 2px dashed #ccc; padding-top: 15px;">Titik Koordinat Objek</h3>
+        <div class="grup-input"><label>Titik 1 (X, Y)</label><div class="grup-koordinat"><input type="number" id="t1x" value="-4"><input type="number" id="t1y" value="1"></div></div>
+        <div class="grup-input"><label>Titik 2 (X, Y)</label><div class="grup-koordinat"><input type="number" id="t2x" value="-2"><input type="number" id="t2y" value="1"></div></div>
+        <div class="grup-input"><label>Titik 3 (X, Y)</label><div class="grup-koordinat"><input type="number" id="t3x" value="-2"><input type="number" id="t3y" value="3"></div></div>
+        <div class="grup-input"><label>Titik 4 (X, Y)</label><div class="grup-koordinat"><input type="number" id="t4x" value="-4"><input type="number" id="t4y" value="3"></div></div>
+
+        <button class="btn-terapkan" onclick="terapkanPengaturan()">Terapkan Bentuk</button>
+
+        <div class="kontrol-arah">
+            <h3 style="margin-bottom: 5px;">Gerakkan Objek</h3>
+            <div class="d-pad">
+                <button class="btn-atas" onclick="gerak(0, 1)">Atas</button>
+                <button class="btn-kiri" onclick="gerak(-1, 0)">Kiri</button>
+                <button class="btn-kanan" onclick="gerak(1, 0)">Kanan</button>
+                <button class="btn-bawah" onclick="gerak(0, -1)">Bawah</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="wadah-kanvas">
+        <canvas id="kanvasAnimasi"></canvas>
+    </div>
+
+    <div class="panel-edukasi">
+        <h2 style="margin-top: 0; color: #0056b3;">Aljabar Linear Komputasi</h2>
+        
+        <div class="kotak-matriks">
+            <h4 style="margin-top: 0; color: #333;">Perkalian Matriks Refleksi Sumbu Y</h4>
+            
+            <div class="tampilan-matriks">
+                <div class="kurung-matriks" style="color: green;">
+                    <div class="baris-matriks"><span>-1</span> <span>0</span></div>
+                    <div class="baris-matriks"><span>0</span> <span>1</span></div>
+                </div>
+                <div>X</div>
+                <div class="kurung-matriks" style="color: blue;">
+                    <div class="baris-matriks">
+                        <span id="m-x1">-4</span> <span id="m-x2">-2</span> <span id="m-x3">-2</span> <span id="m-x4">-4</span>
+                    </div>
+                    <div class="baris-matriks">
+                        <span id="m-y1">1</span> <span id="m-y2">1</span> <span id="m-y3">3</span> <span id="m-y4">3</span>
+                    </div>
+                </div>
+                <div>=</div>
+                <div class="kurung-matriks" style="color: red;">
+                    <div class="baris-matriks">
+                        <span id="m-hx1">4</span> <span id="m-hx2">2</span> <span id="m-hx3">2</span> <span id="m-hx4">4</span>
+                    </div>
+                    <div class="baris-matriks">
+                        <span id="m-hy1">1</span> <span id="m-hy2">1</span> <span id="m-hy3">3</span> <span id="m-hy4">3</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FITUR BARU: KOTAK DETEKSI JENIS MATRIKS -->
+        <div class="kotak-deteksi">
+            <h4 style="margin-top: 0; color: #1e7e34; margin-bottom: 10px;">Deteksi Jenis Matriks</h4>
+            
+            <div style="margin-bottom: 8px;">
+                <span style="font-weight: bold; font-size: 14px;">1. Matriks Transformasi (Cermin):</span><br>
+                <span style="font-size: 13px; color: #444;" id="teks-ordo-transformasi">Ordo 2 x 2</span> &rarr; 
+                <span style="font-weight: bold; color: green;" id="teks-jenis-transformasi">Matriks Persegi</span>
+            </div>
+            
+            <div>
+                <span style="font-weight: bold; font-size: 14px;">2. Matriks Hasil (Bayangan):</span><br>
+                <span style="font-size: 13px; color: #444;" id="teks-ordo-hasil">Ordo 2 x 4</span> &rarr; 
+                <span style="font-weight: bold; color: red;" id="teks-jenis-hasil">Matriks Persegi Panjang</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        var kanvas = document.getElementById("kanvasAnimasi");
+        var ctx = kanvas.getContext("2d");
+        
+        var batasX = 8; var batasY = 8; var ukuranSatuPetak = 40; 
+        var titik1 = [-4, 1]; var titik2 = [-2, 1]; var titik3 = [-2, 3]; var titik4 = [-4, 3];
+        var geserX = 0; var geserY = 0;
+        var posisiMouseX = -100; var posisiMouseY = -100;
+
+        var matriksCerminY = [
+            [-1, 0],
+            [ 0, 1]
+        ];
+
+        // ============================================================
+        // FUNGSI BARU: MENDETEKSI JENIS MATRIKS BERDASARKAN ORDO
+        // Menggunakan logika if-else sederhana untuk perbandingan nilai
+        // ============================================================
+        function deteksiJenisMatriks(jumlahBaris, jumlahKolom) {
+            var jenis = "";
+            
+            if (jumlahBaris === jumlahKolom) {
+                jenis = "Matriks Persegi (Square Matrix)";
+            } else if (jumlahBaris !== jumlahKolom) {
+                jenis = "Matriks Persegi Panjang (Rectangular Matrix)";
+            }
+            
+            return jenis;
+        }
+
+        function kaliMatriks(matriksTransformasi, vektorTitik) {
+            var a = matriksTransformasi[0][0]; var b = matriksTransformasi[0][1];
+            var c = matriksTransformasi[1][0]; var d = matriksTransformasi[1][1];
+            var x = vektorTitik[0]; var y = vektorTitik[1];
+            
+            var hasilX = (a * x) + (b * y);
+            var hasilY = (c * x) + (d * y);
+            
+            return [hasilX, hasilY]; 
+        }
+
+        kanvas.addEventListener('mousemove', function(event) {
+            var kotakKanvas = kanvas.getBoundingClientRect();
+            posisiMouseX = event.clientX - kotakKanvas.left; posisiMouseY = event.clientY - kotakKanvas.top;
+            perbaruiLayar(); 
+        });
+
+        kanvas.addEventListener('mouseout', function() {
+            posisiMouseX = -100; posisiMouseY = -100; perbaruiLayar();
+        });
+
+        function terapkanPengaturan() {
+            batasX = parseInt(document.getElementById("inputBatasX").value); batasY = parseInt(document.getElementById("inputBatasY").value);
+            titik1 = [parseInt(document.getElementById("t1x").value), parseInt(document.getElementById("t1y").value)];
+            titik2 = [parseInt(document.getElementById("t2x").value), parseInt(document.getElementById("t2y").value)];
+            titik3 = [parseInt(document.getElementById("t3x").value), parseInt(document.getElementById("t3y").value)];
+            titik4 = [parseInt(document.getElementById("t4x").value), parseInt(document.getElementById("t4y").value)];
+            geserX = 0; geserY = 0;
+            perbaruiLayar(); 
+        }
+
+        function gerak(ubahX, ubahY) {
+            geserX = geserX + ubahX; geserY = geserY + ubahY; perbaruiLayar();
+        }
+
+        function hitungLayarX(x) { return (x + batasX) * ukuranSatuPetak; }
+        function hitungLayarY(y) { return (batasY - y) * ukuranSatuPetak; }
+
+        function gambarBentukKustom(kumpulanTitik, warnaCangkang, warnaIsi, label) {
+            ctx.beginPath();
+            for (var i = 0; i < kumpulanTitik.length; i++) {
+                var layarX = hitungLayarX(kumpulanTitik[i][0]); var layarY = hitungLayarY(kumpulanTitik[i][1]);
+                if (i === 0) ctx.moveTo(layarX, layarY); else ctx.lineTo(layarX, layarY);
+            }
+            ctx.closePath(); ctx.fillStyle = warnaIsi; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = warnaCangkang; ctx.stroke();
+
+            for (var j = 0; j < kumpulanTitik.length; j++) {
+                var titikX = hitungLayarX(kumpulanTitik[j][0]); var titikY = hitungLayarY(kumpulanTitik[j][1]);
+                ctx.beginPath(); ctx.arc(titikX, titikY, 4, 0, 2 * Math.PI); ctx.fillStyle = warnaCangkang; ctx.fill();
+            }
+
+            ctx.fillStyle = warnaCangkang; ctx.font = "bold 13px Arial"; ctx.textAlign = "center";
+            var labelX = kumpulanTitik[0][0]; var labelY = kumpulanTitik[0][1];
+            ctx.fillText(label + " (" + labelX + ", " + labelY + ")", hitungLayarX(labelX), hitungLayarY(labelY) + 20);
+        }
+
+        function cekHoverTitik(kumpulanTitik, namaBentuk) {
+            for (var i = 0; i < kumpulanTitik.length; i++) {
+                var xAsli = kumpulanTitik[i][0]; var yAsli = kumpulanTitik[i][1];
+                var titikLayarX = hitungLayarX(xAsli); var titikLayarY = hitungLayarY(yAsli);
+                
+                var jarakTotal = Math.sqrt(((posisiMouseX - titikLayarX) * (posisiMouseX - titikLayarX)) + ((posisiMouseY - titikLayarY) * (posisiMouseY - titikLayarY)));
+
+                if (jarakTotal <= 10) {
+                    ctx.beginPath(); ctx.arc(titikLayarX, titikLayarY, 8, 0, 2 * Math.PI); ctx.fillStyle = "orange"; ctx.fill(); ctx.strokeStyle = "black"; ctx.stroke();
+                    var nomorTitik = i + 1;
+                    var teksInformasi = namaBentuk + " - Titik " + nomorTitik + " (" + xAsli + ", " + yAsli + ")";
+                    ctx.font = "bold 12px Arial"; var lebarTeks = ctx.measureText(teksInformasi).width;
+                    
+                    ctx.fillStyle = "rgba(255, 255, 200, 0.95)";
+                    ctx.fillRect(titikLayarX + 12, titikLayarY - 25, lebarTeks + 16, 22);
+                    ctx.strokeStyle = "black"; ctx.strokeRect(titikLayarX + 12, titikLayarY - 25, lebarTeks + 16, 22);
+                    ctx.fillStyle = "black"; ctx.textAlign = "left";
+                    ctx.fillText(teksInformasi, titikLayarX + 20, titikLayarY - 14);
+                }
+            }
+        }
+
+        function perbaruiLayar() {
+            kanvas.width = batasX * 2 * ukuranSatuPetak; kanvas.height = batasY * 2 * ukuranSatuPetak;
+            ctx.clearRect(0, 0, kanvas.width, kanvas.height);
+
+            ctx.font = "12px Arial"; ctx.fillStyle = "gray"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.strokeStyle = "#e0e0e0"; ctx.lineWidth = 1;
+            
+            for (var i = -batasX; i <= batasX; i++) {
+                var x = hitungLayarX(i); ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, kanvas.height); ctx.stroke();
+                if (i !== 0) ctx.fillText(i, x, hitungLayarY(0) + 18);
+            }
+            for (var j = -batasY; j <= batasY; j++) {
+                var y = hitungLayarY(j); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(kanvas.width, y); ctx.stroke();
+                if (j !== 0) ctx.fillText(j, hitungLayarX(0) - 18, y);
+            }
+            ctx.fillText("0", hitungLayarX(0) - 12, hitungLayarY(0) + 18);
+
+            ctx.strokeStyle = "black"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(hitungLayarX(0), 0); ctx.lineTo(hitungLayarX(0), kanvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, hitungLayarY(0)); ctx.lineTo(kanvas.width, hitungLayarY(0)); ctx.stroke();
+
+            var posisiT1Asli = [titik1[0] + geserX, titik1[1] + geserY];
+            var posisiT2Asli = [titik2[0] + geserX, titik2[1] + geserY];
+            var posisiT3Asli = [titik3[0] + geserX, titik3[1] + geserY];
+            var posisiT4Asli = [titik4[0] + geserX, titik4[1] + geserY];
+
+            var arrayTitikAsli = [posisiT1Asli, posisiT2Asli, posisiT3Asli, posisiT4Asli];
+
+            var arrayTitikBayangan = [
+                kaliMatriks(matriksCerminY, posisiT1Asli), kaliMatriks(matriksCerminY, posisiT2Asli),
+                kaliMatriks(matriksCerminY, posisiT3Asli), kaliMatriks(matriksCerminY, posisiT4Asli)
+            ];
+
+            // Update Angka Matriks Visual
+            document.getElementById("m-x1").innerText = posisiT1Asli[0]; document.getElementById("m-x2").innerText = posisiT2Asli[0];
+            document.getElementById("m-x3").innerText = posisiT3Asli[0]; document.getElementById("m-x4").innerText = posisiT4Asli[0];
+            document.getElementById("m-y1").innerText = posisiT1Asli[1]; document.getElementById("m-y2").innerText = posisiT2Asli[1];
+            document.getElementById("m-y3").innerText = posisiT3Asli[1]; document.getElementById("m-y4").innerText = posisiT4Asli[1];
+
+            document.getElementById("m-hx1").innerText = arrayTitikBayangan[0][0]; document.getElementById("m-hx2").innerText = arrayTitikBayangan[1][0];
+            document.getElementById("m-hx3").innerText = arrayTitikBayangan[2][0]; document.getElementById("m-hx4").innerText = arrayTitikBayangan[3][0];
+            document.getElementById("m-hy1").innerText = arrayTitikBayangan[0][1]; document.getElementById("m-hy2").innerText = arrayTitikBayangan[1][1];
+            document.getElementById("m-hy3").innerText = arrayTitikBayangan[2][1]; document.getElementById("m-hy4").innerText = arrayTitikBayangan[3][1];
+
+            // ============================================================
+            // PENERAPAN LOGIKA DETEKSI MATRIKS UNTUK DITAMPILKAN
+            // ============================================================
+            
+            // 1. Deteksi Matriks Transformasi (2 baris x 2 kolom)
+            var barisTransformasi = matriksCerminY.length; 
+            var kolomTransformasi = matriksCerminY[0].length;
+            var jenisTransformasi = deteksiJenisMatriks(barisTransformasi, kolomTransformasi);
+            
+            // Menggabungkan teks secara manual dengan operator "+"
+            document.getElementById("teks-ordo-transformasi").innerText = "Ordo " + barisTransformasi + " x " + kolomTransformasi;
+            document.getElementById("teks-jenis-transformasi").innerText = jenisTransformasi;
+
+            // 2. Deteksi Matriks Hasil/Bayangan (2 baris (X,Y) x 4 kolom (Titik 1-4))
+            var barisHasil = 2; // Sumbu X dan Y
+            var kolomHasil = arrayTitikBayangan.length; // Jumlah titik (4)
+            var jenisHasil = deteksiJenisMatriks(barisHasil, kolomHasil);
+            
+            // Menggabungkan teks secara manual dengan operator "+"
+            document.getElementById("teks-ordo-hasil").innerText = "Ordo " + barisHasil + " x " + kolomHasil;
+            document.getElementById("teks-jenis-hasil").innerText = jenisHasil;
+
+            gambarBentukKustom(arrayTitikAsli, "blue", "rgba(100, 150, 255, 0.5)", "ASLI");
+            gambarBentukKustom(arrayTitikBayangan, "red", "rgba(255, 100, 100, 0.5)", "BAYANGAN");
+            
+            cekHoverTitik(arrayTitikAsli, "Objek Asli"); cekHoverTitik(arrayTitikBayangan, "Bayangan");
+        }
+
+        window.onload = perbaruiLayar;
+    </script>
+</body>
+</html>
