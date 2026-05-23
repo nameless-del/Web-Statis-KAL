@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operasi Matriks - Aljabar Linear</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .profile-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid var(--active-item-bg);
+        }
+
+        .profile-info {
+            width: 100%;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .profile-info strong {
+            color: var(--text-heading);
+            display: inline-block;
+            width: 90px;
+        }
+
+        .sidebar-left h2 {
+            font-size: 14px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-items li a {
+            display: block;
+            font-size: 14px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-items li.active a {
+            background-color: var(--active-item-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 50px 80px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .main-content h1 {
+            color: var(--text-heading);
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .perintah-box {
+            background-color: rgba(50, 59, 73, 0.4);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4fc1ff;
+            margin-bottom: 30px;
+        }
+
+        h2.section-title {
+            color: var(--text-heading);
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        h3.step-title {
+            color: var(--text-heading);
+            font-size: 16px;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            background-color: var(--active-item-bg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        ul.content-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul.content-list li {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        strong {
+            color: var(--text-heading);
+        }
+
+        .equation-container {
+            font-size: 16px;
+            margin: 20px 0;
+            overflow-x: auto;
+            color: var(--text-heading);
+            padding: 10px 0;
+        }
+
+        .sidebar-right {
+            width: 250px;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sidebar-right h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sidebar-right h3::after {
+            content: '⌄';
+            margin-left: 5px;
+            font-size: 16px;
+            transform: translateY(-2px);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic">
+            <div class="profile-info">
+                <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+
+        <h2>Tugas KAL</h2>
+        <ul class="nav-items">
+            <li class="active"><a href="#operasi-matriks">Operasi Matriks</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="content-header" id="operasi-matriks">
+            <h1>Tugas Aljabar Linear: Operasi Matriks</h1>
+            <button class="download-btn" title="Download">📥</button>
+        </div>
+
+        <div class="perintah-box">
+            <p><strong>Perintah:</strong></p>
+            <ul class="content-list">
+                <li>Hitung determinan menggunakan rumus ekspansi baris: $\sum_{k=1}^{n}(-1)^{i+k}a_{ik}M_{ik}$</li>
+                <li>Gunakan rumus matriks adjoin untuk menghitung invers: $(\text{adj } A)_{ij} = (-1)^{i+j}M_{ji}$</li>
+                <li>Hasilnya ditulis dan dijelaskan dengan proses-prosesnya sesuai rumus di web statis GitHub.</li>
+            </ul>
+        </div>
+
+        <h2 class="section-title" id="sec-1">Bagian A: Menghitung Determinan (Ekspansi Baris dengan Minor)</h2>
+
+        <h3 class="step-title">1. Matriks 2x2</h3>
+        <div class="equation-container">
+            $$A = \begin{bmatrix} -7 & -5 \\ 1 & 4 \end{bmatrix}$$
+        </div>
+        <p>Ekspansi sepanjang baris pertama ($i = 1$):</p>
+        <ul class="content-list">
+            <li>$\det A = a_{11}(-1)^{1+1}M_{11} + a_{12}(-1)^{1+2}M_{12}$</li>
+            <li>$\det A = (-7)(1)(4) + (-5)(-1)(1)$</li>
+            <li>$\det A = -28 + 5 = \mathbf{-23}$</li>
+        </ul>
+
+        <h3 class="step-title">2. Matriks 3x3</h3>
+        <div class="equation-container">
+            $$A = \begin{bmatrix} 0 & 2 & -3 \\ 1 & -2 & -1 \\ 0 & 0 & 1 \end{bmatrix}$$
+        </div>
+        <p>Ekspansi pada baris ketiga ($i = 3$) karena memiliki elemen nol terbanyak untuk mempermudah perhitungan:</p>
+        <ul class="content-list">
+            <li>$\det A = a_{31}(-1)^{3+1}M_{31} + a_{32}(-1)^{3+2}M_{32} + a_{33}(-1)^{3+3}M_{33}$</li>
+            <li>$\det A = 0 \cdot M_{31} + 0 \cdot M_{32} + 1(-1)^{6} \begin{vmatrix} 0 & 2 \\ 1 & -2 \end{vmatrix}$</li>
+            <li>$\det A = 1(1)((0)(-2) - (2)(1))$</li>
+            <li>$\det A = 1(0 - 2) = \mathbf{-2}$</li>
+        </ul>
+
+        <h3 class="step-title">3. Matriks 4x4</h3>
+        <div class="equation-container">
+            $$A = \begin{bmatrix} 1 & -3 & 1 & 1 \\ -3 & 1 & 1 & 1 \\ 1 & 1 & -3 & 1 \\ 1 & 1 & 1 & -3 \end{bmatrix}$$
+        </div>
+        <p>Melakukan ekspansi pada baris pertama ($i = 1$):</p>
+        <div class="equation-container">
+            $$\det A = a_{11}(-1)^{1+1}M_{11} + a_{12}(-1)^{1+2}M_{12} + a_{13}(-1)^{1+3}M_{13} + a_{14}(-1)^{1+4}M_{14}$$
+        </div>
+        <p>Langkah pencarian masing-masing Minor ($M_{ij}$):</p>
+        <ul class="content-list">
+            <li>
+                <strong>Mencari $M_{11}$:</strong><br>
+                $M_{11} = \begin{vmatrix} 1 & 1 & 1 \\ 1 & -3 & 1 \\ 1 & 1 & -3 \end{vmatrix} = 1(9 - 1) - 1(-3 - 1) + 1(1 - (-3)) = 8 + 4 + 4 = 16$
+            </li>
+            <li>
+                <strong>Mencari $M_{12}$:</strong><br>
+                $M_{12} = \begin{vmatrix} -3 & 1 & 1 \\ 1 & -3 & 1 \\ 1 & 1 & -3 \end{vmatrix} = -3(9 - 1) - 1(-3 - 1) + 1(1 - (-3)) = -24 + 4 + 4 = -16$
+            </li>
+            <li>
+                <strong>Mencari $M_{13}$:</strong><br>
+                $M_{13} = \begin{vmatrix} -3 & 1 & 1 \\ 1 & 1 & 1 \\ 1 & 1 & -3 \end{vmatrix} = -3(-3 - 1) - 1(-3 - 1) + 1(1 - 1) = 12 + 4 + 0 = 16$
+            </li>
+            <li>
+                <strong>Mencari $M_{14}$:</strong><br>
+                $M_{14} = \begin{vmatrix} -3 & 1 & 1 \\ 1 & 1 & -3 \\ 1 & 1 & 1 \end{vmatrix} = -3(1 - (-3)) - 1(1 - (-3)) + 1(1 - 1) = -12 - 4 + 0 = -16$
+            </li>
+        </ul>
+        <p>Substitusi ke rumus determinan:</p>
+        <ul class="content-list">
+            <li>$\det A = 1(1)(16) + (-3)(-1)(-16) + 1(1)(16) + 1(-1)(-16)$</li>
+            <li>$\det A = 16 - 48 + 16 + 16 = \mathbf{0}$</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-2">Bagian B: Menghitung Invers Matriks dengan Rumus Adjoin</h2>
+        <p>Rumus matriks invers: $A^{-1} = \frac{1}{\det A} \text{adj } A$ <br>
+        Dimana elemen adjoin dihitung dengan transposisi minor: $(\text{adj } A)_{ij} = (-1)^{i+j}M_{ji}$</p>
+
+        <h3 class="step-title">4. Invers Matriks 2x2</h3>
+        <p>Berdasarkan perhitungan soal No. 1, $\det A = -23$.</p>
+        <ul class="content-list">
+            <li>$(\text{adj } A)_{11} = (-1)^{1+1}M_{11} = (1)(4) = 4$</li>
+            <li>$(\text{adj } A)_{12} = (-1)^{1+2}M_{21} = (-1)(-5) = 5$</li>
+            <li>$(\text{adj } A)_{21} = (-1)^{2+1}M_{12} = (-1)(1) = -1$</li>
+            <li>$(\text{adj } A)_{22} = (-1)^{2+2}M_{22} = (1)(-7) = -7$</li>
+        </ul>
+        <div class="equation-container">
+            $$\text{adj } A = \begin{bmatrix} 4 & 5 \\ -1 & -7 \end{bmatrix}$$
+        </div>
+        <p>Sehingga Inversnya:</p>
+        <div class="equation-container">
+            $$A^{-1} = -\frac{1}{23} \begin{bmatrix} 4 & 5 \\ -1 & -7 \end{bmatrix} = \mathbf{\begin{bmatrix} -4/23 & -5/23 \\ 1/23 & 7/23 \end{bmatrix}}$$
+        </div>
+
+        <h3 class="step-title">5. Invers Matriks 3x3</h3>
+        <p>Berdasarkan perhitungan soal No. 2, $\det A = -2$. Menghitung elemen adjoin secara langsung:</p>
+        <ul class="content-list">
+            <li>$(\text{adj } A)_{11} = (-1)^{2}M_{11} = (1)(0 - 2) = -2$</li>
+            <li>$(\text{adj } A)_{12} = (-1)^{3}M_{21} = (-1)(2 - 0) = -2$</li>
+            <li>$(\text{adj } A)_{13} = (-1)^{4}M_{31} = (1)(-2 - 6) = -8$</li>
+            <br>
+            <li>$(\text{adj } A)_{21} = (-1)^{3}M_{12} = (-1)(1 - 0) = -1$</li>
+            <li>$(\text{adj } A)_{22} = (-1)^{4}M_{22} = (1)(0 - 0) = 0$</li>
+            <li>$(\text{adj } A)_{23} = (-1)^{5}M_{32} = (-1)(0 - (-3)) = -3$</li>
+            <br>
+            <li>$(\text{adj } A)_{31} = (-1)^{4}M_{13} = (1)(0 - 0) = 0$</li>
+            <li>$(\text{adj } A)_{32} = (-1)^{5}M_{23} = (-1)(0 - 0) = 0$</li>
+            <li>$(\text{adj } A)_{33} = (-1)^{6}M_{33} = (1)(0 - 2) = -2$</li>
+        </ul>
+        <div class="equation-container">
+            $$\text{adj } A = \begin{bmatrix} -2 & -2 & -8 \\ -1 & 0 & -3 \\ 0 & 0 & -2 \end{bmatrix}$$
+        </div>
+        <p>Sehingga Inversnya:</p>
+        <div class="equation-container">
+            $$A^{-1} = \frac{1}{-2} \begin{bmatrix} -2 & -2 & -8 \\ -1 & 0 & -3 \\ 0 & 0 & -2 \end{bmatrix} = \mathbf{\begin{bmatrix} 1 & 1 & 4 \\ 1/2 & 0 & 3/2 \\ 0 & 0 & 1 \end{bmatrix}}$$
+        </div>
+
+        <h3 class="step-title">6. Invers Matriks 4x4</h3>
+        <p>Berdasarkan perhitungan ekspansi baris di soal No. 3, kita telah mendapatkan bahwa nilai determinan matriks ini adalah <strong>$\det A = 0$</strong>.</p>
+        <p>Sesuai rumus $A^{-1} = \frac{1}{\det A} \text{adj } A$, pembagian dengan nilai nol tidak terdefinisi. Matriks dengan determinan nol adalah <strong>matriks singular</strong>.</p>
+        <p><strong>Kesimpulan:</strong> Matriks pada soal nomor 6 <strong>tidak memiliki invers</strong>.</p>
+
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>DAFTAR ISI</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">Bagian A: Determinan</a></li>
+            <li><a href="#sec-2">Bagian B: Invers Matriks</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>

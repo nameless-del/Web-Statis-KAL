@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminasi Gaussian 5 Variabel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        /* Sidebar Kiri */
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        /* Bagian Profil */
+        .profile-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid var(--active-item-bg);
+        }
+
+        .profile-info {
+            width: 100%;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        .profile-info strong {
+            color: var(--text-heading);
+            display: inline-block;
+            width: 90px;
+        }
+
+        .sidebar-left h2 {
+            font-size: 14px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-items li {
+            font-size: 14px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-items li.active {
+            background-color: var(--active-item-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        /* Konten Utama */
+        .main-content {
+            flex-grow: 1;
+            padding: 50px 80px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .main-content h1 {
+            color: var(--text-heading);
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 700px;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        h2.section-title {
+            color: var(--text-heading);
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        h3.step-title {
+            color: var(--text-heading);
+            font-size: 16px;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        ul.content-list, ol.content-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul.content-list li, ol.content-list li {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        strong {
+            color: var(--text-heading);
+        }
+
+        .equation-container {
+            font-size: 16px;
+            margin: 20px 0;
+            overflow-x: auto;
+            color: var(--text-heading);
+        }
+
+        /* Sidebar Kanan (Table of Contents) */
+        .sidebar-right {
+            width: 250px;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sidebar-right h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sidebar-right h3::after {
+            content: '⌄';
+            margin-left: 5px;
+            font-size: 16px;
+            transform: translateY(-2px);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic">
+            <div class="profile-info">
+                  <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+
+        <h2>Tugas KAL</h2>
+        <ul class="nav-items">
+            <li class="active">Penyelesaian SPL (5x5)</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Penyelesaian Sistem Persamaan Linear 5 Variabel (Metode Eliminasi Gauss)</h1>
+            <button class="download-btn" title="Download">📥</button>
+        </div>
+
+        <h2 class="section-title" id="sec-1">1. Sistem Persamaan Linear</h2>
+        <p>Contoh Sistem Persamaan Linear (SPL) dengan 5 variabel ($x_1, x_2, x_3, x_4, x_5$):</p>
+        
+        <div class="equation-container">
+            $$x_1 + x_2 + x_3 + x_4 + x_5 = 4$$
+            $$2x_1 + x_2 - x_3 + x_4 + 2x_5 = 4$$
+            $$3x_1 + 2x_2 + x_3 - x_4 - x_5 = 8$$
+            $$x_1 - x_2 + 2x_3 + 2x_4 + x_5 = 0$$
+            $$-x_1 + 2x_2 + x_3 + x_4 + 3x_5 = 6$$
+        </div>
+
+        <h2 class="section-title" id="sec-2">2. Langkah-langkah Operasi Baris Elementer (OBE)</h2>
+        <p>Pertama, ubah sistem persamaan di atas menjadi matriks augmentasi:</p>
+        <div class="equation-container">
+            $$
+            \begin{bmatrix}
+            1 & 1 & 1 & 1 & 1 & | & 4 \\
+            2 & 1 & -1 & 1 & 2 & | & 4 \\
+            3 & 2 & 1 & -1 & -1 & | & 8 \\
+            1 & -1 & 2 & 2 & 1 & | & 0 \\
+            -1 & 2 & 1 & 1 & 3 & | & 6
+            \end{bmatrix}
+            $$
+        </div>
+
+        <h3 class="step-title">Langkah 1: Eliminasi Kolom Pertama</h3>
+        <p>Gunakan baris pertama ($r_1$) sebagai pivot untuk menolkan semua angka di bawahnya pada kolom pertama.</p>
+        <ul class="content-list">
+            <li>$r_2 \leftarrow r_2 - 2r_1$</li>
+            <li>$r_3 \leftarrow r_3 - 3r_1$</li>
+            <li>$r_4 \leftarrow r_4 - r_1$</li>
+            <li>$r_5 \leftarrow r_5 + r_1$</li>
+        </ul>
+        <div class="equation-container">
+            $$
+            \begin{bmatrix}
+            1 & 1 & 1 & 1 & 1 & | & 4 \\
+            0 & -1 & -3 & -1 & 0 & | & -4 \\
+            0 & -1 & -2 & -4 & -4 & | & -4 \\
+            0 & -2 & 1 & 1 & 0 & | & -4 \\
+            0 & 3 & 2 & 2 & 4 & | & 10
+            \end{bmatrix}
+            $$
+        </div>
+
+        <h3 class="step-title">Langkah 2: Eliminasi Kolom Kedua</h3>
+        <p>Kalikan baris kedua dengan -1 agar pivotnya menjadi positif ($r_2 \leftarrow -r_2$). Kemudian gunakan $r_2$ yang baru untuk menolkan angka di bawahnya.</p>
+        <ul class="content-list">
+            <li>$r_3 \leftarrow r_3 + r_2$</li>
+            <li>$r_4 \leftarrow r_4 + 2r_2$</li>
+            <li>$r_5 \leftarrow r_5 - 3r_2$</li>
+        </ul>
+        <div class="equation-container">
+            $$
+            \begin{bmatrix}
+            1 & 1 & 1 & 1 & 1 & | & 4 \\
+            0 & 1 & 3 & 1 & 0 & | & 4 \\
+            0 & 0 & 1 & -3 & -4 & | & 0 \\
+            0 & 0 & 7 & 3 & 0 & | & 4 \\
+            0 & 0 & -7 & -1 & 4 & | & -2
+            \end{bmatrix}
+            $$
+        </div>
+
+        <h3 class="step-title">Langkah 3: Trik Penyederhanaan & Penukaran Baris</h3>
+        <p>Baris ketiga sudah memiliki pivot 1. Untuk menyederhanakan proses dan menghindari angka yang terlalu besar, jumlahkan dahulu $r_5$ dan $r_4$, lalu tukar posisinya.</p>
+        <ul class="content-list">
+            <li>$r_5 \leftarrow r_5 + r_4 \implies (0, 0, 0, 2, 4 \,|\, 2)$</li>
+            <li>Kalikan dengan $\frac{1}{2}$: $r_5 \leftarrow \frac{1}{2}r_5 \implies (0, 0, 0, 1, 2 \,|\, 1)$</li>
+            <li>Tukar baris: $r_4 \leftrightarrow r_5$</li>
+        </ul>
+        <div class="equation-container">
+            $$
+            \begin{bmatrix}
+            1 & 1 & 1 & 1 & 1 & | & 4 \\
+            0 & 1 & 3 & 1 & 0 & | & 4 \\
+            0 & 0 & 1 & -3 & -4 & | & 0 \\
+            0 & 0 & 0 & 1 & 2 & | & 1 \\
+            0 & 0 & 7 & 3 & 0 & | & 4
+            \end{bmatrix}
+            $$
+        </div>
+
+        <h3 class="step-title">Langkah 4 & 5: Eliminasi Kolom Ketiga dan Keempat</h3>
+        <p>Nolkan angka 7 di baris kelima menggunakan pivot baris ketiga, kemudian nolkan hasil sisanya menggunakan pivot baris keempat.</p>
+        <ul class="content-list">
+            <li>$r_5 \leftarrow r_5 - 7r_3 \implies (0, 0, 0, 24, 28 \,|\, 4)$</li>
+            <li>$r_5 \leftarrow r_5 - 24r_4 \implies (0, 0, 0, 0, -20 \,|\, -20)$</li>
+            <li>$r_5 \leftarrow -\frac{1}{20}r_5$</li>
+        </ul>
+        <p>Matriks akhir dalam <strong>Bentuk Eselon Baris</strong>:</p>
+        <div class="equation-container">
+            $$
+            \begin{bmatrix}
+            1 & 1 & 1 & 1 & 1 & | & 4 \\
+            0 & 1 & 3 & 1 & 0 & | & 4 \\
+            0 & 0 & 1 & -3 & -4 & | & 0 \\
+            0 & 0 & 0 & 1 & 2 & | & 1 \\
+            0 & 0 & 0 & 0 & 1 & | & 1
+            \end{bmatrix}
+            $$
+        </div>
+
+        <h2 class="section-title" id="sec-3">3. Solusi (Substitusi Balik)</h2>
+        <p>Dari matriks eselon baris di atas, kita bisa menemukan nilai tiap variabel dari bawah ke atas:</p>
+        <ul class="content-list">
+            <li>Dari $r_5$: $x_5 = 1$</li>
+            <li>Dari $r_4$: $x_4 + 2x_5 = 1 \implies x_4 + 2(1) = 1 \implies x_4 = -1$</li>
+            <li>Dari $r_3$: $x_3 - 3x_4 - 4x_5 = 0 \implies x_3 - 3(-1) - 4(1) = 0 \implies x_3 = 1$</li>
+            <li>Dari $r_2$: $x_2 + 3x_3 + x_4 = 4 \implies x_2 + 3(1) - 1 = 4 \implies x_2 = 2$</li>
+            <li>Dari $r_1$: $x_1 + x_2 + x_3 + x_4 + x_5 = 4 \implies x_1 + 2 + 1 - 1 + 1 = 4 \implies x_1 = 1$</li>
+        </ul>
+        <p>Himpunan solusinya adalah <strong>(1, 2, 1, -1, 1)</strong>.</p>
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>CONTENTS</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">1. Sistem Persamaan Linear</a></li>
+            <li><a href="#sec-2">2. Langkah-langkah OBE</a></li>
+            <li><a href="#sec-3">3. Solusi (Substitusi Balik)</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>
