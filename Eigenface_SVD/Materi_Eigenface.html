@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformasi Eigenface menggunakan SVD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; line-height: 1.6; }
+        
+        /* Sidebar Styles */
+        .sidebar-left { width: 260px; background-color: var(--sidebar-bg); padding: 30px 20px; border-right: 1px solid var(--border-color); flex-shrink: 0; overflow-y: auto; }
+        .profile-section { margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; }
+        .profile-pic { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 2px solid var(--active-item-bg); }
+        .profile-info { width: 100%; }
+        .profile-info p { font-size: 13px; margin-bottom: 6px; color: var(--text-main); line-height: 1.4; }
+        .profile-info strong { color: var(--text-heading); display: inline-block; width: 90px; }
+        .sidebar-left h2 { font-size: 14px; color: var(--text-heading); margin-bottom: 20px; font-weight: 700; }
+        .nav-items { list-style: none; }
+        .nav-items li { font-size: 14px; padding: 12px 15px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .nav-items li.active { background-color: var(--active-item-bg); color: var(--text-heading); font-weight: 600; }
+        
+        /* Content Styles */
+        .main-content { flex-grow: 1; padding: 50px 80px; overflow-y: auto; position: relative; }
+        .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .main-content h1 { color: var(--text-heading); font-size: 36px; font-weight: 800; line-height: 1.2; max-width: 700px; }
+        p { margin-bottom: 20px; font-size: 15px; text-align: justify; }
+        h2.section-title { color: var(--text-heading); font-size: 20px; margin-top: 40px; margin-bottom: 15px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        ul.content-list { margin-left: 20px; margin-bottom: 20px; }
+        ul.content-list li { margin-bottom: 10px; font-size: 15px; }
+        strong { color: var(--text-heading); }
+        .equation-container { font-size: 16px; margin: 20px 0; overflow-x: auto; color: var(--text-heading); background: var(--active-item-bg); padding: 15px; border-radius: 8px; }
+        
+        /* Kotak Highlight Edukasi */
+        .kotak-analogi { background: #1a2332; border-left: 4px solid #007acc; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
+        .kotak-analogi p { margin-bottom: 0; }
+
+        /* TOC Styles */
+        .sidebar-right { width: 250px; padding: 30px 20px; flex-shrink: 0; border-left: 1px solid var(--border-color); overflow-y: auto; }
+        .sidebar-right h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-heading); margin-bottom: 20px; display: flex; align-items: center; }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 12px; }
+        .toc-list a { color: var(--text-main); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+        .toc-list a:hover { color: var(--accent-color); }
+        
+        .wadah-tombol-bawah { display: flex; justify-content: flex-end; margin-top: 50px; margin-bottom: 20px; padding-top: 20px; border-top: 1px dashed var(--border-color); }
+        .btn-simulasi { display: inline-flex; align-items: center; background-color: #007acc; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; border: none;}
+        .btn-simulasi:hover { background-color: #005f9e; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic" onerror="this.src='https://via.placeholder.com/90'">
+            <div class="profile-info">
+                <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+
+        <h2>Tugas KAL</h2>
+        <ul class="nav-items">
+            <li class="active">Eigenface SVD (Dataset Asli)</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Aljabar Linear: Eigenface Berbasis SVD pada Citra Wajah</h1>
+        </div>
+
+        <h2 class="section-title" id="sec-1">1. Konsep Dasar SVD untuk Eigenface</h2>
+        <p>Pada materi sebelumnya, persamaan karakteristik $\det(A - \lambda I) = 0$ hanya bisa digunakan untuk mencari vektor eigen dari <strong>Matriks Persegi</strong>. Namun, dataset wajah di dunia nyata selalu berbentuk persegi panjang (jumlah fitur piksel jauh lebih banyak daripada jumlah foto).</p>
+        <p>Untuk mengekstrak fitur wajah, kita menggunakan <strong>Singular Value Decomposition (SVD)</strong>. SVD memfaktorkan matriks data wajah $A$ menjadi tiga buah matriks:</p>
+        
+        <div class="equation-container">
+            $$A = U \Sigma V^T$$
+        </div>
+        
+        <ul class="content-list">
+            <li><strong>Matriks $U$:</strong> Berisi vektor-vektor tegak lurus (ortogonal). Kolom-kolom di matriks $U$ inilah yang merepresentasikan <strong>Eigenfaces</strong> (wajah hantu / fitur dasar).</li>
+            <li><strong>Matriks $\Sigma$:</strong> Matriks diagonal berisi nilai singular (skalar yang menunjukkan seberapa penting Eigenface tersebut).</li>
+            <li><strong>Matriks $V^T$:</strong> Transpose dari matriks ortogonal yang merepresentasikan komposisi/bobot setiap wajah.</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-2">2. Flattening: Mengubah Wajah Menjadi Matriks ($A$)</h2>
+        <p>Dalam simulasi Python yang dijalankan, kita menggunakan dataset wajah nyata (Olivetti Faces) yang terdiri dari 400 foto dengan resolusi $64 \times 64$ piksel.</p>
+        <p>Gambar 2D tidak bisa langsung diproses oleh aljabar linear. Setiap foto wajah harus "diratakan" (<em>flattened</em>) menjadi satu Vektor Kolom panjang:</p>
+        
+        <ul class="content-list">
+            <li>1 Foto = $64 \times 64$ piksel = <strong>4096 baris angka</strong>.</li>
+            <li>400 Foto mahasiswa/sampel dijejerkan menyamping.</li>
+        </ul>
+
+        <p>Maka terbentuklah <strong>Matriks Data Wajah ($A$)</strong> berukuran sangat besar:</p>
+
+        <div class="equation-container">
+            $$ 
+            A = \begin{bmatrix} 
+            x_{1,1} & x_{1,2} & \dots & x_{1,400} \\ 
+            x_{2,1} & x_{2,2} & \dots & x_{2,400} \\ 
+            \vdots & \vdots & \ddots & \vdots \\
+            x_{4096,1} & x_{4096,2} & \dots & x_{4096,400} 
+            \end{bmatrix} 
+            $$
+        </div>
+
+        <h2 class="section-title" id="sec-3">3. Mean Face & Proses Dekomposisi</h2>
+        <p>Sebelum algoritma SVD dijalankan, matriks harus di-normalisasi agar terpusat di titik nol (<em>Zero-mean</em>). Kita menghitung Vektor Rata-rata ($\Psi$) dari 400 wajah tersebut, lalu menguranginya dari setiap kolom Matriks $A$. Hasilnya adalah matriks $A_{centered}$.</p>
+        <p>Wajah rata-rata ($\Psi$) ini memuat fitur universal manusia (seperti posisi hidung, mata, dan mulut secara umum) sehingga terlihat sangat kabur karena merupakan gabungan dari karakteristik ratusan orang sekaligus.</p>
+        <p>Selanjutnya, pustaka `numpy` di Python akan menghitung SVD secara numerik: $A_{centered} = U \Sigma V^T$. Vektor-vektor pada kolom $U$ (berukuran 4096) akan dilipat kembali menjadi matriks $64 \times 64$ untuk divisualisasikan sebagai gambar <strong>Eigenfaces</strong>.</p>
+
+        <h2 class="section-title" id="sec-4">4. Analisis Jenis Matriks & Vektor</h2>
+        <p>Berdasarkan Ordo (Baris $\times$ Kolom), berikut adalah identifikasi aljabar linear dari sistem citra digital ini:</p>
+        
+        <ul class="content-list">
+            <li><strong>Vektor Wajah Input ($\mathbf{x}$):</strong> Memiliki ordo $4096 \times 1$. Ini disebut sebagai <strong>Vektor Kolom (Column Vector)</strong>.</li>
+            <li><strong>Matriks Data ($A$):</strong> Memiliki ordo $4096 \times 400$ (Jumlah Baris $\neq$ Jumlah Kolom). Ini adalah <strong>Matriks Persegi Panjang (Rectangular Matrix)</strong>. Inilah alasan mengapa kita tidak bisa menggunakan metode determinan biasa.</li>
+            <li><strong>Matriks Eigenface ($U$):</strong> Pada metode <em>Thin SVD</em>, ukurannya adalah $4096 \times 400$, dan sifat utamanya adalah <strong>Matriks Ortogonal</strong> parsial ($U^T U = I$).</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-5">5. Arti Filosofis dari Vektor Eigenface (1, 2, 3, dan 4)</h2>
+        <p>Di layar simulasi, kita melihat visualisasi Eigenface 1, 2, 3, dan 4 yang menyerupai pola bayangan hantu kebiruan. Secara matematis, mereka adalah Left Singular Vectors yang merepresentasikan arah variasi fitur wajah terbesar.</p>
+        <p>Algoritma SVD secara otomatis mengurutkan vektor basis ini berdasarkan nilai singular terbesar di matriks $\Sigma$:</p>
+        <ul class="content-list">
+            <li><strong>Eigenface 1:</strong> Pola variasi paling dominan dari seluruh database. Biasanya menangkap arah pencahayaan global (kontras kiri-kanan atau atas-bawah) serta bentuk siluet kepala paling mendasar.</li>
+            <li><strong>Eigenface 2 & 3:</strong> Menangkap variasi tajam berikutnya. Jika diperhatikan, pada Eigenface 3 terdapat area gelap pekat di sekitar mata dan hidung. Ini berarti vektor basis ketiga ini bertugas menyimpan informasi matematika spesifik tentang kedalaman rongga mata atau kepemilikan kacamata pada sampel wajah.</li>
+            <li><strong>Eigenface 4:</strong> Menyimpan detail yang lebih minor seperti garis senyum, bentuk kumis tipis, atau batas rahang bawah.</li>
+        </ul>
+        <div class="kotak-analogi">
+            <p><strong>Analogi Memasak:</strong> Bayangkan Eigenfaces adalah bumbu dapur dasar. Eigenface 1 adalah garam, Eigenface 2 adalah gula, dan Eigenface 3 adalah merica. Setiap wajah manusia unik di dunia ini dibangun dari kombinasi bumbu-bumbu dasar yang sama, hanya saja takaran (bobot koefisiennya) yang berbeda-beda.</p>
+        </div>
+
+        <h2 class="section-title" id="sec-6">6. Analisis Parameter K (Proses Rekonstruksi Citra)</h2>
+        <p>Simulasi pada baris kedua menunjukkan proses rekonstruksi Wajah Target Asli menggunakan variasi jumlah komponen utama ($k$). Proses penggambaran ulang ini mematuhi rumus penjumlahan aljabar berikut:</p>
+        <div class="equation-container">
+            $$\text{Wajah Baru} \approx \Psi + (w_1 \cdot \text{Eigenface}_1) + (w_2 \cdot \text{Eigenface}_2) + \dots + (w_k \cdot \text{Eigenface}_k)$$
+        </div>
+        <p>Berikut adalah analisis fisis terhadap perubahan nilai $k$ di layar monitor:</p>
+        <ul class="content-list">
+            <li><strong>Rekonstruksi ($k=5$):</strong> Komputer hanya diizinkan memakai 5 vektor basis pertama. Hasilnya sangat buram dan generik karena informasi detail wajah sengaja dibuang. Identitas asli target belum bisa dikenali.</li>
+            <li><strong>Rekonstruksi ($k=20$ dan $k=50$):</strong> Komputer mulai menumpuk lebih banyak bumbu informasi. Struktur hidung, kejelasan mata, dan bentuk mulut objek uji mulai bertransisi menjadi lebih tajam.</li>
+            <li><strong>Rekonstruksi ($k=150$):</strong> Gambar terlihat sangat tajam dan identik dengan Wajah Target Asli. Detail-detail halus seperti lipatan kelopak mata dan bayangan bibir berhasil dipulihkan dengan sempurna.</li>
+        </ul>
+        
+        <div class="kotak-analogi" style="border-left-color: #28a745; background: #162419;">
+            <p><strong>Kesimpulan Inti untuk Presentasi Dosen:</strong> Melalui eksperimen ini, kita membuktikan fungsi SVD sebagai teknik <strong>Reduksi Dimensi (Kompresi Data)</strong> yang luar biasa. Kita tidak perlu menyimpan seluruh 400 dimensi vektor wajah ke memori database. Cukup dengan menyimpan <strong>150 komponen utama ($k=150$)</strong> saja, komputer sudah mampu mengenali dan memulihkan identitas wajah seseorang tanpa kehilangan informasi penting.</p>
+        </div>
+
+        <div class="wadah-tombol-bawah">
+            <button class="btn-simulasi" onclick="alert('Silakan buka terminal/CMD dan jalankan perintah: python simulasi_eigenface.py untuk melihat dekomposisi matriks secara langsung!')">
+                💻 Cara Menjalankan Simulasi Python &rarr;
+            </button>
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>CONTENTS</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">1. Konsep Dasar SVD</a></li>
+            <li><a href="#sec-2">2. Flattening & Matriks A</a></li>
+            <li><a href="#sec-3">3. Mean Face & Dekomposisi</a></li>
+            <li><a href="#sec-4">4. Analisis Matriks Data</a></li>
+            <li><a href="#sec-5">5. Filosofi Eigenface 1-4</a></li>
+            <li><a href="#sec-6">6. Analisis Nilai K</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>
