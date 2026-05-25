@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transformasi Eigenface menggunakan SVD</title>
+    <title>Transformasi Matriks - Eigenface SVD</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -22,7 +22,6 @@
     <style>
         :root {
             --bg-color: #161616;
-            --sidebar-bg: #161616;
             --text-main: #d1d1d1;
             --text-heading: #ffffff;
             --active-item-bg: #323b49;
@@ -32,8 +31,8 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; line-height: 1.6; }
-        
-        /* Sidebar Styles */
+
+          /* Sidebar Styles */
         .sidebar-left { width: 260px; background-color: var(--sidebar-bg); padding: 30px 20px; border-right: 1px solid var(--border-color); flex-shrink: 0; overflow-y: auto; }
         .profile-section { margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; }
         .profile-pic { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 2px solid var(--active-item-bg); }
@@ -61,7 +60,7 @@
         .kotak-analogi p { margin-bottom: 0; }
 
         /* TOC Styles */
-        .sidebar-right { width: 250px; padding: 30px 20px; flex-shrink: 0; border-left: 1px solid var(--border-color); overflow-y: auto; }
+        .sidebar-right { width: 250px; padding: 30px 20px; flex-shrink: 0; border-left: 1px solid var(--border-color); overflow-y: auto; background-color: var(--bg-color); }
         .sidebar-right h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-heading); margin-bottom: 20px; display: flex; align-items: center; }
         .toc-list { list-style: none; }
         .toc-list li { margin-bottom: 12px; }
@@ -74,6 +73,22 @@
     </style>
 </head>
 <body>
+    <aside class="sidebar-left">
+        <div class="profile-section">
+            <img src="profil.png" alt="Foto Profil" class="profile-pic" onerror="this.src='https://via.placeholder.com/90'">
+            <div class="profile-info">
+                <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
+                <p><strong>NIM</strong>: 250411100180</p>
+                <p><strong>Kelas</strong>: IF 2A</p>
+                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
+            </div>
+        </div>
+
+        <h2>Tugas KAL</h2>
+        <ul class="nav-items">
+            <li class="active">Eigenface SVD (Dataset Asli)</li>
+        </ul>
+    </aside>
 
     <main class="main-content">
         <div class="content-header">
@@ -131,34 +146,82 @@
         </ul>
 
         <h2 class="section-title" id="sec-5">5. Arti Filosofis dari Vektor Eigenface (1, 2, 3, dan 4)</h2>
-        <p>Di layar simulasi, kita melihat visualisasi Eigenface 1, 2, 3, dan 4 yang menyerupai pola bayangan hantu kebiruan. Secara matematis, mereka adalah Left Singular Vectors yang merepresentasikan arah variasi fitur wajah terbesar.</p>
-        <p>Algoritma SVD secara otomatis mengurutkan vektor basis ini berdasarkan nilai singular terbesar di matriks $\Sigma$:</p>
+        <p>Di layar simulasi, kita melihat visualisasi <strong>Eigenface 1, 2, 3, dan 4</strong> yang menyerupai pola bayangan hantu kebiruan. Secara matematis, mereka adalah <strong>Left Singular Vectors</strong> yang merepresentasikan arah variasi fitur wajah terbesar.</p>
+        <p>Algoritma SVD secara otomatis <strong>mengurutkan</strong> vektor basis ini berdasarkan nilai singular terbesar di matriks $\Sigma$:</p>
         <ul class="content-list">
             <li><strong>Eigenface 1:</strong> Pola variasi paling dominan dari seluruh database. Biasanya menangkap arah pencahayaan global (kontras kiri-kanan atau atas-bawah) serta bentuk siluet kepala paling mendasar.</li>
-            <li><strong>Eigenface 2 & 3:</strong> Menangkap variasi tajam berikutnya. Jika diperhatikan, pada Eigenface 3 terdapat area gelap pekat di sekitar mata dan hidung. Ini berarti vektor basis ketiga ini bertugas menyimpan informasi matematika spesifik tentang kedalaman rongga mata atau kepemilikan kacamata pada sampel wajah.</li>
+            <li><strong>Eigenface 2 & 3:</strong> Menangkap variasi tajam berikutnya. Jika diperhatikan, pada <strong>Eigenface 3</strong> terdapat area gelap pekat di sekitar mata dan hidung. Ini berarti vektor basis ketiga ini bertugas menyimpan informasi matematika spesifik tentang kedalaman rongga mata atau kepemilikan kacamata pada sampel wajah.</li>
             <li><strong>Eigenface 4:</strong> Menyimpan detail yang lebih minor seperti garis senyum, bentuk kumis tipis, atau batas rahang bawah.</li>
         </ul>
         <div class="kotak-analogi">
-            <p><strong>Analogi Memasak:</strong> Bayangkan Eigenfaces adalah bumbu dapur dasar. Eigenface 1 adalah garam, Eigenface 2 adalah gula, dan Eigenface 3 adalah merica. Setiap wajah manusia unik di dunia ini dibangun dari kombinasi bumbu-bumbu dasar yang sama, hanya saja takaran (bobot koefisiennya) yang berbeda-beda.</p>
+            <p><strong>Analogi Memasak:</strong> Bayangkan Eigenfaces adalah bumbu dapur dasar. Eigenface 1<td></td> adalah garam, Eigenface 2 adalah gula, dan Eigenface 3 adalah merica. Setiap wajah manusia unik di dunia ini dibangun dari kombinasi bumbu-bumbu dasar yang sama, hanya saja takaran (bobot koefisiennya) yang berbeda-beda.</p>
         </div>
 
         <h2 class="section-title" id="sec-6">6. Analisis Parameter K (Proses Rekonstruksi Citra)</h2>
-        <p>Simulasi pada baris kedua menunjukkan proses rekonstruksi Wajah Target Asli menggunakan variasi jumlah komponen utama ($k$). Proses penggambaran ulang ini mematuhi rumus penjumlahan aljabar berikut:</p>
+        <p>Simulasi pada baris kedua menunjukkan proses rekonstruksi <strong>Wajah Target Asli</strong> menggunakan variasi jumlah komponen utama ($k$). Proses penggambaran ulang ini mematuhi rumus penjumlahan aljabar berikut:</p>
         <div class="equation-container">
             $$\text{Wajah Baru} \approx \Psi + (w_1 \cdot \text{Eigenface}_1) + (w_2 \cdot \text{Eigenface}_2) + \dots + (w_k \cdot \text{Eigenface}_k)$$
         </div>
         <p>Berikut adalah analisis fisis terhadap perubahan nilai $k$ di layar monitor:</p>
         <ul class="content-list">
-            <li><strong>Rekonstruksi ($k=5$):</strong> Komputer hanya diizinkan memakai 5 vektor basis pertama. Hasilnya sangat buram dan generik karena informasi detail wajah sengaja dibuang. Identitas asli target belum bisa dikenali.</li>
+            <li><strong>Rekonstruksi ($k=5$):</strong> Komputer hanya diizinkan memakai 5 vektor basis pertama. Hasilnya sangat <strong>buram dan generik</strong> karena informasi detail wajah sengaja dibuang. Identitas asli target belum bisa dikenali.</li>
             <li><strong>Rekonstruksi ($k=20$ dan $k=50$):</strong> Komputer mulai menumpuk lebih banyak bumbu informasi. Struktur hidung, kejelasan mata, dan bentuk mulut objek uji mulai bertransisi menjadi lebih tajam.</li>
-            <li><strong>Rekonstruksi ($k=150$):</strong> Gambar terlihat sangat tajam dan identik dengan Wajah Target Asli. Detail-detail halus seperti lipatan kelopak mata dan bayangan bibir berhasil dipulihkan dengan sempurna.</li>
+            <li><strong>Rekonstruksi ($k=150$):</strong> Gambar terlihat <strong>sating tajam dan identik</strong> dengan Wajah Target Asli. Detail-detail halus seperti lipatan kelopak mata dan bayangan bibir berhasil dipulihkan dengan sempurna.</li>
         </ul>
         
         <div class="kotak-analogi" style="border-left-color: #28a745; background: #162419;">
-            <p><strong>Kesimpulan Inti untuk Presentasi Dosen:</strong> Melalui eksperimen ini, kita membuktikan fungsi SVD sebagai teknik <strong>Reduksi Dimensi (Kompresi Data)</strong> yang luar biasa. Kita tidak perlu menyimpan seluruh 400 dimensi vektor wajah ke memori database. Cukup dengan menyimpan <strong>150 komponen utama ($k=150$)</strong> saja, komputer sudah mampu mengenali dan memulihkan identitas wajah seseorang tanpa kehilangan informasi penting.</p>
+            <p><strong>Kesimpulan Inti:</strong> Melalui eksperimen ini, kita membuktikan fungsi SVD sebagai teknik <strong>Reduksi Dimensi (Kompresi Data)</strong> yang luar biasa. Kita tidak perlu menyimpan seluruh 400 dimensi vektor wajah ke memori database. Cukup dengan menyimpan <strong>150 komponen utama ($k=150$)</strong> saja, komputer sudah mampu mengenali dan memulihkan identitas wajah seseorang tanpa kehilangan informasi penting.</p>
         </div>
 
-       <div class="wadah-tombol-bawah">
+        <h2 class="section-title" id="sec-7">7. Simulasi Perhitungan Manual SVD (Matriks Wajah 2x2)</h2>
+        <p>Untuk membuktikan keaslian rumus komputasi di JavaScript dan Python, berikut adalah perhitungan manual SVD menggunakan metode Persamaan Karakteristik $\det(M - \lambda I) = 0$ sesuai dasar teori pengerjaan tugas aljabar linear sebelumnya:</p>
+        
+        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah A: Matriks Objek Terpusat ($A$)</h3>
+        <p>Misalkan kita memiliki matriks wajah mikro berukuran $2 \times 2$ yang sudah dikurangi rata-ratanya:</p>
+        <div class="equation-container">
+            $$A = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix}$$
+        </div>
+
+        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah B: Mengubah Menjadi Matriks Persegi Simetris ($M = A^T A$)</h3>
+        <div class="equation-container">
+            $$M = A^T A = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 2 & -2 \\ -2 & 2 \end{bmatrix}$$
+        </div>
+
+        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah C: Mencari Nilai Eigen ($\lambda$) & Nilai Singular ($\Sigma$)</h3>
+        <p>Gunakan rumus determinan persamaan karakteristik untuk mencari nilai skalar:</p>
+        <div class="equation-container">
+            $$\det(M - \lambda I) = 0$$
+            $$\begin{vmatrix} 2-\lambda & -2 \\ -2 & 2-\lambda \end{vmatrix} = 0$$
+            $$(2-\lambda)(2-\lambda) - (-2)(-2) = 0$$
+            $$(4 - 4\lambda + \lambda^2) - 4 = 0$$
+            $$\lambda^2 - 4\lambda = 0 \implies \lambda(\lambda - 4) = 0$$
+        </div>
+        <p>Maka didapatkan akar nilai eigen $\lambda_1 = 4$ dan $\lambda_2 = 0$. Sesuai aturan SVD, Nilai Singular ($\sigma$) didapatkan dari akar kuadrat nilai eigen:</p>
+        <ul class="content-list">
+            <li>$\sigma_1 = \sqrt{4} = 2$</li>
+            <li>$\sigma_2 = \sqrt{0} = 0$</li>
+        </ul>
+        <p>Sehingga terbentuklah susunan Matriks Diagonal $\Sigma$:</p>
+        <div class="equation-container">
+            $$\Sigma = \begin{bmatrix} 2 & 0 \\ 0 & 0 \end{bmatrix}$$
+        </div>
+
+        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah D: Mencari Vektor Eigenface Utama ($U$)</h3>
+        <p>Vektor basis utama kiri (Eigenface) dicari dengan cara menormalisasi hasil kali matriks data dengan vektor eigen kanan melalui hubungan formula:</p>
+        <div class="equation-container">
+            $$\mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1$$
+        </div>
+        <p>Setelah dihitung menggunakan basis vektor normalisasi $\mathbf{v}_1 = \begin{bmatrix} 1/\sqrt{2} \\ -1/\sqrt{2} \end{bmatrix}$, diperoleh kolom pertama untuk ruang wajah:</p>
+        <div class="equation-container">
+            $$\mathbf{u}_1 = \frac{1}{2} \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix} \approx \begin{bmatrix} 0.707 \\ -0.707 \end{bmatrix}$$
+        </div>
+        <p>Maka bentuk akhir Matriks Basis Ortogonal $U$ (Eigenface) di program adalah:</p>
+        <div class="equation-container">
+            $$U = \begin{bmatrix} 0.707 & 0.707 \\ -0.707 & 0.707 \end{bmatrix}$$
+        </div>
+        <p>Nilai desimal desimal $0.707$ ini terbukti bernilai sama persis 100% dengan angka keluaran visual pada kotak simulasi hijau di aplikasi interaktif.</p>
+
+        <div class="wadah-tombol-bawah">
             <a href="https://colab.research.google.com/drive/1jzx3PL3GcclznnudfaojPeo6Y3HPxAwS?usp=sharing" target="_blank" class="btn-simulasi">
                 💻 Jalankan Simulasi di Google Colab &rarr;
             </a>
@@ -174,6 +237,7 @@
             <li><a href="#sec-4">4. Analisis Matriks Data</a></li>
             <li><a href="#sec-5">5. Filosofi Eigenface 1-4</a></li>
             <li><a href="#sec-6">6. Analisis Nilai K</a></li>
+            <li><a href="#sec-7">7. Perhitungan Manual SVD</a></li>
         </ul>
     </aside>
 
