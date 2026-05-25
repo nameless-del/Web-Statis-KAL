@@ -31,18 +31,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; line-height: 1.6; }
-
-          /* Sidebar Styles */
-        .sidebar-left { width: 260px; background-color: var(--sidebar-bg); padding: 30px 20px; border-right: 1px solid var(--border-color); flex-shrink: 0; overflow-y: auto; }
-        .profile-section { margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; }
-        .profile-pic { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 2px solid var(--active-item-bg); }
-        .profile-info { width: 100%; }
-        .profile-info p { font-size: 13px; margin-bottom: 6px; color: var(--text-main); line-height: 1.4; }
-        .profile-info strong { color: var(--text-heading); display: inline-block; width: 90px; }
-        .sidebar-left h2 { font-size: 14px; color: var(--text-heading); margin-bottom: 20px; font-weight: 700; }
-        .nav-items { list-style: none; }
-        .nav-items li { font-size: 14px; padding: 12px 15px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
-        .nav-items li.active { background-color: var(--active-item-bg); color: var(--text-heading); font-weight: 600; }
         
         /* Content Styles */
         .main-content { flex-grow: 1; padding: 50px 80px; overflow-y: auto; position: relative; }
@@ -73,22 +61,6 @@
     </style>
 </head>
 <body>
-    <aside class="sidebar-left">
-        <div class="profile-section">
-            <img src="profil.png" alt="Foto Profil" class="profile-pic" onerror="this.src='https://via.placeholder.com/90'">
-            <div class="profile-info">
-                <p><strong>Nama</strong>: Muhammad Ryan Hidayatullah</p>
-                <p><strong>NIM</strong>: 250411100180</p>
-                <p><strong>Kelas</strong>: IF 2A</p>
-                <p><strong>Mata Kuliah</strong>: Komputasi Aljabar Linear</p>
-            </div>
-        </div>
-
-        <h2>Tugas KAL</h2>
-        <ul class="nav-items">
-            <li class="active">Eigenface SVD (Dataset Asli)</li>
-        </ul>
-    </aside>
 
     <main class="main-content">
         <div class="content-header">
