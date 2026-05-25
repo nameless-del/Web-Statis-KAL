@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transformasi Matriks - Eigenface SVD</title>
+    <title>SVD pada Citra Wajah Tunggal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -22,6 +22,7 @@
     <style>
         :root {
             --bg-color: #161616;
+            --sidebar-bg: #161616;
             --text-main: #d1d1d1;
             --text-heading: #ffffff;
             --active-item-bg: #323b49;
@@ -43,7 +44,6 @@
         strong { color: var(--text-heading); }
         .equation-container { font-size: 16px; margin: 20px 0; overflow-x: auto; color: var(--text-heading); background: var(--active-item-bg); padding: 15px; border-radius: 8px; }
         
-        /* Kotak Highlight Edukasi */
         .kotak-analogi { background: #1a2332; border-left: 4px solid #007acc; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
         .kotak-analogi p { margin-bottom: 0; }
 
@@ -64,152 +64,96 @@
 
     <main class="main-content">
         <div class="content-header">
-            <h1>Aljabar Linear: Eigenface Berbasis SVD pada Citra Wajah</h1>
+            <h1>Dekomposisi SVD pada Citra Wajah Tunggal</h1>
         </div>
 
-        <h2 class="section-title" id="sec-1">1. Konsep Dasar SVD untuk Eigenface</h2>
-        <p>Pada materi sebelumnya, persamaan karakteristik $\det(A - \lambda I) = 0$ hanya bisa digunakan untuk mencari vektor eigen dari <strong>Matriks Persegi</strong>. Namun, dataset wajah di dunia nyata selalu berbentuk persegi panjang (jumlah fitur piksel jauh lebih banyak daripada jumlah foto).</p>
-        <p>Untuk mengekstrak fitur wajah, kita menggunakan <strong>Singular Value Decomposition (SVD)</strong>. SVD memfaktorkan matriks data wajah $A$ menjadi tiga buah matriks:</p>
-        
-        <div class="equation-container">
-            $$A = U \Sigma V^T$$
-        </div>
-        
-        <ul class="content-list">
-            <li><strong>Matriks $U$:</strong> Berisi vektor-vektor tegak lurus (ortogonal). Kolom-kolom di matriks $U$ inilah yang merepresentasikan <strong>Eigenfaces</strong> (wajah hantu / fitur dasar).</li>
-            <li><strong>Matriks $\Sigma$:</strong> Matriks diagonal berisi nilai singular (skalar yang menunjukkan seberapa penting Eigenface tersebut).</li>
-            <li><strong>Matriks $V^T$:</strong> Transpose dari matriks ortogonal yang merepresentasikan komposisi/bobot setiap wajah.</li>
-        </ul>
-
-        <h2 class="section-title" id="sec-2">2. Flattening: Mengubah Wajah Menjadi Matriks ($A$)</h2>
-        <p>Dalam simulasi Python yang dijalankan, kita menggunakan dataset wajah nyata (Olivetti Faces) yang terdiri dari 400 foto dengan resolusi $64 \times 64$ piksel.</p>
-        <p>Gambar 2D tidak bisa langsung diproses oleh aljabar linear. Setiap foto wajah harus "diratakan" (<em>flattened</em>) menjadi satu Vektor Kolom panjang:</p>
-        
-        <ul class="content-list">
-            <li>1 Foto = $64 \times 64$ piksel = <strong>4096 baris angka</strong>.</li>
-            <li>400 Foto mahasiswa/sampel dijejerkan menyamping.</li>
-        </ul>
-
-        <p>Maka terbentuklah <strong>Matriks Data Wajah ($A$)</strong> berukuran sangat besar:</p>
-
+        <h2 class="section-title" id="sec-1">1. Representasi Wajah Sebagai Matriks</h2>
+        <p>Dalam komputasi aljabar linear, satu buah foto wajah pada dasarnya adalah sebuah <strong>Matriks Persegi Panjang</strong>. Jika kita memiliki satu foto hitam-putih (grayscale) beresolusi $m \times n$ piksel, maka foto tersebut dapat dituliskan langsung sebagai matriks $A$.</p>
+        <p>Setiap elemen atau entri di dalam matriks tersebut mewakili tingkat kecerahan piksel (misalnya dari rentang 0 untuk hitam pekat, hingga 255 untuk putih terang).</p>
         <div class="equation-container">
             $$ 
             A = \begin{bmatrix} 
-            x_{1,1} & x_{1,2} & \dots & x_{1,400} \\ 
-            x_{2,1} & x_{2,2} & \dots & x_{2,400} \\ 
+            p_{1,1} & p_{1,2} & \dots & p_{1,n} \\ 
+            p_{2,1} & p_{2,2} & \dots & p_{2,n} \\ 
             \vdots & \vdots & \ddots & \vdots \\
-            x_{4096,1} & x_{4096,2} & \dots & x_{4096,400} 
+            p_{m,1} & p_{m,2} & \dots & p_{m,n} 
             \end{bmatrix} 
             $$
         </div>
 
-        <h2 class="section-title" id="sec-3">3. Mean Face & Proses Dekomposisi</h2>
-        <p>Sebelum algoritma SVD dijalankan, matriks harus di-normalisasi agar terpusat di titik nol (<em>Zero-mean</em>). Kita menghitung Vektor Rata-rata ($\Psi$) dari 400 wajah tersebut, lalu menguranginya dari setiap kolom Matriks $A$. Hasilnya adalah matriks $A_{centered}$.</p>
-        <p>Wajah rata-rata ($\Psi$) ini memuat fitur universal manusia (seperti posisi hidung, mata, dan mulut secara umum) sehingga terlihat sangat kabur karena merupakan gabungan dari karakteristik ratusan orang sekaligus.</p>
-        <p>Selanjutnya, pustaka `numpy` di Python akan menghitung SVD secara numerik: $A_{centered} = U \Sigma V^T$. Vektor-vektor pada kolom $U$ (berukuran 4096) akan dilipat kembali menjadi matriks $64 \times 64$ untuk divisualisasikan sebagai gambar <strong>Eigenfaces</strong>.</p>
+        <h2 class="section-title" id="sec-2">2. Memecah Wajah dengan SVD</h2>
+        <p>Karena matriks wajah ($A$) ini berukuran $m \times n$ dan tidak selalu bujur sangkar, kita tidak bisa menggunakan metode nilai eigen biasa. Untuk mengekstrak informasi penting di dalamnya, kita memecah (mendekomposisi) matriks wajah tunggal tersebut menggunakan <strong>Singular Value Decomposition (SVD)</strong> menjadi perkalian tiga matriks terpisah:</p>
+        <div class="equation-container">
+            $$A = U \Sigma V^T$$
+        </div>
+        <ul class="content-list">
+            <li><strong>Matriks $U$:</strong> Matriks vektor singular kiri (Ortogonal). Menangkap pola vertikal dari wajah.</li>
+            <li><strong>Matriks $\Sigma$ (S):</strong> Matriks diagonal yang berisi <em>Singular Values</em> (skalar). Nilai ini diurutkan dari yang paling dominan hingga yang paling tidak penting (noise).</li>
+            <li><strong>Matriks $V^T$:</strong> Transpose dari matriks vektor singular kanan (Ortogonal). Menangkap pola horizontal dari wajah.</li>
+        </ul>
 
-        <h2 class="section-title" id="sec-4">4. Analisis Jenis Matriks & Vektor</h2>
-        <p>Berdasarkan Ordo (Baris $\times$ Kolom), berikut adalah identifikasi aljabar linear dari sistem citra digital ini:</p>
+        <h2 class="section-title" id="sec-3">3. Ukuran-ukuran Matriks (Dimensi SVD)</h2>
+        <p>Bagian terpenting dari analisis ini adalah mengetahui ordo (ukuran) pasti dari pecahan matriks tersebut. Misalkan wajah asli (Matriks $A$) kita memiliki dimensi $m$ baris dan $n$ kolom <strong>($m \times n$)</strong>, maka spesifikasi ukurannya adalah:</p>
         
+        <div class="equation-container" style="background-color: #1a2332; border: 1px solid #007acc;">
+            $$A_{m \times n} = U_{m \times m} \cdot \Sigma_{m \times n} \cdot V^T_{n \times n}$$
+        </div>
+
         <ul class="content-list">
-            <li><strong>Vektor Wajah Input ($\mathbf{x}$):</strong> Memiliki ordo $4096 \times 1$. Ini disebut sebagai <strong>Vektor Kolom (Column Vector)</strong>.</li>
-            <li><strong>Matriks Data ($A$):</strong> Memiliki ordo $4096 \times 400$ (Jumlah Baris $\neq$ Jumlah Kolom). Ini adalah <strong>Matriks Persegi Panjang (Rectangular Matrix)</strong>. Inilah alasan mengapa kita tidak bisa menggunakan metode determinan biasa.</li>
-            <li><strong>Matriks Eigenface ($U$):</strong> Pada metode <em>Thin SVD</em>, ukurannya adalah $4096 \times 400$, dan sifat utamanya adalah <strong>Matriks Ortogonal</strong> parsial ($U^T U = I$).</li>
+            <li><strong>Ukuran $U$ adalah $(m \times m)$</strong>. <br>Jika foto berukuran $640 \times 480$ piksel, maka matriks $U$ berukuran $640 \times 640$.</li>
+            <li><strong>Ukuran $\Sigma$ adalah $(m \times n)$</strong>. <br>Ini adalah matriks yang ukurannya persis sama dengan ukuran foto aslinya. Diagonal utamanya memuat nilai-nilai singular, dan sisanya bernilai nol.</li>
+            <li><strong>Ukuran $V^T$ adalah $(n \times n)$</strong>. <br>Sesuai contoh di atas, ukurannya adalah $480 \times 480$.</li>
         </ul>
 
-        <h2 class="section-title" id="sec-5">5. Arti Filosofis dari Vektor Eigenface (1, 2, 3, dan 4)</h2>
-        <p>Di layar simulasi, kita melihat visualisasi <strong>Eigenface 1, 2, 3, dan 4</strong> yang menyerupai pola bayangan hantu kebiruan. Secara matematis, mereka adalah <strong>Left Singular Vectors</strong> yang merepresentasikan arah variasi fitur wajah terbesar.</p>
-        <p>Algoritma SVD secara otomatis <strong>mengurutkan</strong> vektor basis ini berdasarkan nilai singular terbesar di matriks $\Sigma$:</p>
-        <ul class="content-list">
-            <li><strong>Eigenface 1:</strong> Pola variasi paling dominan dari seluruh database. Biasanya menangkap arah pencahayaan global (kontras kiri-kanan atau atas-bawah) serta bentuk siluet kepala paling mendasar.</li>
-            <li><strong>Eigenface 2 & 3:</strong> Menangkap variasi tajam berikutnya. Jika diperhatikan, pada <strong>Eigenface 3</strong> terdapat area gelap pekat di sekitar mata dan hidung. Ini berarti vektor basis ketiga ini bertugas menyimpan informasi matematika spesifik tentang kedalaman rongga mata atau kepemilikan kacamata pada sampel wajah.</li>
-            <li><strong>Eigenface 4:</strong> Menyimpan detail yang lebih minor seperti garis senyum, bentuk kumis tipis, atau batas rahang bawah.</li>
-        </ul>
+        <h2 class="section-title" id="sec-4">4. Rekonstruksi Wajah (Mengembalikan Gambar Asli)</h2>
+        <p>Sifat magis dari SVD adalah sifat *reversible*-nya. Jika kita telah mengetahui isi dari matriks $U$, matriks $S$ ($\Sigma$), dan matriks $V^T$, kita bisa mengalikannya secara aljabar linear.</p>
+        <p>Perkalian titik (<em>dot product</em>) dari ketiga matriks pecahan tersebut akan menyatukan kembali komponen-komponen gambar secara akurat dan <strong>mengembalikan matriks tersebut menjadi wajah utuh seperti sediakala</strong>.</p>
+        <div class="equation-container">
+            $$U \cdot \Sigma \cdot V^T = A \text{ (Wajah Asli)}$$
+        </div>
+
+        <h2 class="section-title" id="sec-5">5. Aplikasi Praktis: Reduksi Matriks (Kompresi)</h2>
         <div class="kotak-analogi">
-            <p><strong>Analogi Memasak:</strong> Bayangkan Eigenfaces adalah bumbu dapur dasar. Eigenface 1<td></td> adalah garam, Eigenface 2 adalah gula, dan Eigenface 3 adalah merica. Setiap wajah manusia unik di dunia ini dibangun dari kombinasi bumbu-bumbu dasar yang sama, hanya saja takaran (bobot koefisiennya) yang berbeda-beda.</p>
+            <p><strong>Kenapa repot-repot memecah 1 wajah lalu menggabungkannya lagi?</strong> Tujuannya adalah untuk <strong>Kompresi Gambar</strong>.</p>
         </div>
-
-        <h2 class="section-title" id="sec-6">6. Analisis Parameter K (Proses Rekonstruksi Citra)</h2>
-        <p>Simulasi pada baris kedua menunjukkan proses rekonstruksi <strong>Wajah Target Asli</strong> menggunakan variasi jumlah komponen utama ($k$). Proses penggambaran ulang ini mematuhi rumus penjumlahan aljabar berikut:</p>
+        <p>Nilai singular di dalam matriks $\Sigma$ selalu terurut dari yang terbesar hingga terkecil. Sebagian besar nilai singular di bagian bawah bernilai sangat kecil (mendekati nol) yang hanya menyimpan detail piksel <em>noise</em> atau latar belakang yang tidak penting.</p>
+        <p>Alih-alih mengalikan matriks secara penuh, kita bisa memotong (truncation) dan hanya mengambil <strong>$k$ nilai singular pertama</strong>. Rumusnya berubah menjadi pendekatan ($A \approx A_k$):</p>
         <div class="equation-container">
-            $$\text{Wajah Baru} \approx \Psi + (w_1 \cdot \text{Eigenface}_1) + (w_2 \cdot \text{Eigenface}_2) + \dots + (w_k \cdot \text{Eigenface}_k)$$
+            $$A_k = U_k \Sigma_k V_k^T$$
         </div>
-        <p>Berikut adalah analisis fisis terhadap perubahan nilai $k$ di layar monitor:</p>
-        <ul class="content-list">
-            <li><strong>Rekonstruksi ($k=5$):</strong> Komputer hanya diizinkan memakai 5 vektor basis pertama. Hasilnya sangat <strong>buram dan generik</strong> karena informasi detail wajah sengaja dibuang. Identitas asli target belum bisa dikenali.</li>
-            <li><strong>Rekonstruksi ($k=20$ dan $k=50$):</strong> Komputer mulai menumpuk lebih banyak bumbu informasi. Struktur hidung, kejelasan mata, dan bentuk mulut objek uji mulai bertransisi menjadi lebih tajam.</li>
-            <li><strong>Rekonstruksi ($k=150$):</strong> Gambar terlihat <strong>sating tajam dan identik</strong> dengan Wajah Target Asli. Detail-detail halus seperti lipatan kelopak mata dan bayangan bibir berhasil dipulihkan dengan sempurna.</li>
-        </ul>
-        
+        <p>Meskipun kita membuang separuh lebih ukuran matriksnya, saat $U_k$, $\Sigma_k$, dan $V_k^T$ dikalikan kembali, gambar wajah akan tetap terlihat jelas (meski agak sedikit buram/pixelated). Inilah cara Aljabar Linear menghemat ukuran <em>storage</em> gambar di komputer tanpa menghilangkan bentuk wajah seseorang.</p>
+
+        <h2 class="section-title" id="sec-6">6. Pembuktian Komputasi: SVD pada Sampel 3x3</h2>
+        <p>Jika kita mencetak matriks SVD asli dari foto yang berukuran $64 \times 64$ piksel, layar akan dipenuhi oleh 4.096 angka desimal yang tidak mungkin dibaca manusia. Sebagai bentuk <strong>Proof of Concept (Pembuktian Konsep)</strong>, program simulasi akan mencuplik 9 piksel pertama (Matriks $3 \times 3$) dari bagian dahi wajah.</p>
+
+        <p>Langkah pembuktian yang dijalankan oleh bahasa pemrograman Python di Terminal adalah sebagai berikut:</p>
+        <ol class="content-list">
+            <li><strong>Mengekstrak Matriks $A$:</strong> Program mengambil sampel intensitas cahaya matriks $3 \times 3$.</li>
+            <li><strong>Memecah Matriks (Dekomposisi):</strong> Fungsi komputasi memecah matriks $A$ murni menggunakan algoritma pencarian nilai eigen dan vektor eigen untuk menghasilkan angka desimal pada Matriks $U$ ($3 \times 3$), $\Sigma$ ($3 \times 3$), dan $V^T$ ($3 \times 3$).</li>
+            <li><strong>Rekonstruksi (Perkalian Dot Product):</strong> Program mengalikan kembali pecahan matriks tersebut ($U \cdot \Sigma \cdot V^T$).</li>
+        </ol>
+
         <div class="kotak-analogi" style="border-left-color: #28a745; background: #162419;">
-            <p><strong>Kesimpulan Inti:</strong> Melalui eksperimen ini, kita membuktikan fungsi SVD sebagai teknik <strong>Reduksi Dimensi (Kompresi Data)</strong> yang luar biasa. Kita tidak perlu menyimpan seluruh 400 dimensi vektor wajah ke memori database. Cukup dengan menyimpan <strong>150 komponen utama ($k=150$)</strong> saja, komputer sudah mampu mengenali dan memulihkan identitas wajah seseorang tanpa kehilangan informasi penting.</p>
+            <p><strong>Kesimpulan Uji Coba:</strong><br>Hasil simulasi program secara sah membuktikan bahwa hasil kali matriks dekomposisi tersebut <strong>kembali menjadi angka matriks piksel asli dengan presisi 100%</strong> tanpa meleset satu desimal pun. Hal ini memverifikasi bahwa hukum Aljabar Linear (SVD) berjalan konsisten, baik untuk 9 piksel maupun untuk keseluruhan 4.096 piksel wajah manusia.</p>
         </div>
-
-        <h2 class="section-title" id="sec-7">7. Simulasi Perhitungan Manual SVD (Matriks Wajah 2x2)</h2>
-        <p>Untuk membuktikan keaslian rumus komputasi di JavaScript dan Python, berikut adalah perhitungan manual SVD menggunakan metode Persamaan Karakteristik $\det(M - \lambda I) = 0$ sesuai dasar teori pengerjaan tugas aljabar linear sebelumnya:</p>
-        
-        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah A: Matriks Objek Terpusat ($A$)</h3>
-        <p>Misalkan kita memiliki matriks wajah mikro berukuran $2 \times 2$ yang sudah dikurangi rata-ratanya:</p>
-        <div class="equation-container">
-            $$A = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix}$$
-        </div>
-
-        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah B: Mengubah Menjadi Matriks Persegi Simetris ($M = A^T A$)</h3>
-        <div class="equation-container">
-            $$M = A^T A = \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 2 & -2 \\ -2 & 2 \end{bmatrix}$$
-        </div>
-
-        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah C: Mencari Nilai Eigen ($\lambda$) & Nilai Singular ($\Sigma$)</h3>
-        <p>Gunakan rumus determinan persamaan karakteristik untuk mencari nilai skalar:</p>
-        <div class="equation-container">
-            $$\det(M - \lambda I) = 0$$
-            $$\begin{vmatrix} 2-\lambda & -2 \\ -2 & 2-\lambda \end{vmatrix} = 0$$
-            $$(2-\lambda)(2-\lambda) - (-2)(-2) = 0$$
-            $$(4 - 4\lambda + \lambda^2) - 4 = 0$$
-            $$\lambda^2 - 4\lambda = 0 \implies \lambda(\lambda - 4) = 0$$
-        </div>
-        <p>Maka didapatkan akar nilai eigen $\lambda_1 = 4$ dan $\lambda_2 = 0$. Sesuai aturan SVD, Nilai Singular ($\sigma$) didapatkan dari akar kuadrat nilai eigen:</p>
-        <ul class="content-list">
-            <li>$\sigma_1 = \sqrt{4} = 2$</li>
-            <li>$\sigma_2 = \sqrt{0} = 0$</li>
-        </ul>
-        <p>Sehingga terbentuklah susunan Matriks Diagonal $\Sigma$:</p>
-        <div class="equation-container">
-            $$\Sigma = \begin{bmatrix} 2 & 0 \\ 0 & 0 \end{bmatrix}$$
-        </div>
-
-        <h3 style="color:var(--text-heading); margin-top:15px; font-size:16px;">Langkah D: Mencari Vektor Eigenface Utama ($U$)</h3>
-        <p>Vektor basis utama kiri (Eigenface) dicari dengan cara menormalisasi hasil kali matriks data dengan vektor eigen kanan melalui hubungan formula:</p>
-        <div class="equation-container">
-            $$\mathbf{u}_1 = \frac{1}{\sigma_1} A \mathbf{v}_1$$
-        </div>
-        <p>Setelah dihitung menggunakan basis vektor normalisasi $\mathbf{v}_1 = \begin{bmatrix} 1/\sqrt{2} \\ -1/\sqrt{2} \end{bmatrix}$, diperoleh kolom pertama untuk ruang wajah:</p>
-        <div class="equation-container">
-            $$\mathbf{u}_1 = \frac{1}{2} \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix} \approx \begin{bmatrix} 0.707 \\ -0.707 \end{bmatrix}$$
-        </div>
-        <p>Maka bentuk akhir Matriks Basis Ortogonal $U$ (Eigenface) di program adalah:</p>
-        <div class="equation-container">
-            $$U = \begin{bmatrix} 0.707 & 0.707 \\ -0.707 & 0.707 \end{bmatrix}$$
-        </div>
-        <p>Nilai desimal desimal $0.707$ ini terbukti bernilai sama persis 100% dengan angka keluaran visual pada kotak simulasi hijau di aplikasi interaktif.</p>
 
         <div class="wadah-tombol-bawah">
-            <a href="https://colab.research.google.com/drive/1jzx3PL3GcclznnudfaojPeo6Y3HPxAwS?usp=sharing" target="_blank" class="btn-simulasi">
-                💻 Jalankan Simulasi di Google Colab &rarr;
+            <a href="#" class="btn-simulasi">
+                💻 Lihat Hasil Eksekusi di Terminal Python &rarr;
             </a>
         </div>
+
     </main>
 
     <aside class="sidebar-right">
         <h3>CONTENTS</h3>
         <ul class="toc-list">
-            <li><a href="#sec-1">1. Konsep Dasar SVD</a></li>
-            <li><a href="#sec-2">2. Flattening & Matriks A</a></li>
-            <li><a href="#sec-3">3. Mean Face & Dekomposisi</a></li>
-            <li><a href="#sec-4">4. Analisis Matriks Data</a></li>
-            <li><a href="#sec-5">5. Filosofi Eigenface 1-4</a></li>
-            <li><a href="#sec-6">6. Analisis Nilai K</a></li>
-            <li><a href="#sec-7">7. Perhitungan Manual SVD</a></li>
+            <li><a href="#sec-1">1. Representasi Matriks</a></li>
+            <li><a href="#sec-2">2. Memecah Wajah (SVD)</a></li>
+            <li><a href="#sec-3">3. Ukuran Matriks U, S, V</a></li>
+            <li><a href="#sec-4">4. Rekonstruksi Wajah</a></li>
+            <li><a href="#sec-5">5. Kompresi / Reduksi</a></li>
+            <li><a href="#sec-6">6. Pembuktian Sampel 3x3</a></li>
         </ul>
     </aside>
 
