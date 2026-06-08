@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Persamaan Linear - Aljabar Linear</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        .sidebar-left {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            padding: 30px 20px;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-left h2 {
+            font-size: 14px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .nav-items {
+            list-style: none;
+        }
+
+        .nav-items li a {
+            display: block;
+            font-size: 14px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-items li.active a {
+            background-color: var(--active-item-bg);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 50px 80px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .main-content h1 {
+            color: var(--text-heading);
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            color: var(--accent-color);
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .perintah-box {
+            background-color: rgba(50, 59, 73, 0.4);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4fc1ff;
+            margin-bottom: 30px;
+        }
+
+        h2.section-title {
+            color: var(--text-heading);
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        h3.step-title {
+            color: var(--text-heading);
+            font-size: 16px;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            background-color: var(--active-item-bg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        ul.content-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        ul.content-list li {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        strong {
+            color: var(--text-heading);
+        }
+
+        .equation-container {
+            font-size: 16px;
+            margin: 20px 0;
+            overflow-x: auto;
+            color: var(--text-heading);
+            padding: 10px 0;
+        }
+        
+        .image-placeholder {
+            width: 100%;
+            height: 350px;
+            background-color: rgba(50, 59, 73, 0.2);
+            border: 2px dashed #4fc1ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            color: #4fc1ff;
+            font-weight: 600;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .sidebar-right {
+            width: 250px;
+            padding: 30px 20px;
+            flex-shrink: 0;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .sidebar-right h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-heading);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .sidebar-right h3::after {
+            content: '⌄';
+            margin-left: 5px;
+            font-size: 16px;
+            transform: translateY(-2px);
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-list li {
+            margin-bottom: 12px;
+        }
+
+        .toc-list a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .toc-list a:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-right {
+                display: none;
+            }
+            .main-content {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar-left">
+        <h2>Materi KAL</h2>
+        <ul class="nav-items">
+            <li class="active"><a href="#persamaan-linear">Persamaan Linear</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="content-header" id="persamaan-linear">
+            <h1>Apa itu Persamaan Linear?</h1>
+            <button class="download-btn" title="Download">📥</button>
+        </div>
+
+        <div class="perintah-box">
+            <p><strong>Ringkasan Materi:</strong></p>
+            <ul class="content-list">
+                <li>Memahami definisi dasar dari persamaan linear dan komponen pembentuknya.</li>
+                <li>Menganalisis sifat dua garis yang saling berpotongan (memiliki kemiringan berbeda).</li>
+                <li>Menganalisis sifat dua garis yang saling sejajar (memiliki kemiringan sama namun konstanta berbeda).</li>
+                <li>Memvisualisasikan persamaan menggunakan grafik koordinat Cartesius.</li>
+            </ul>
+        </div>
+
+        <h2 class="section-title" id="sec-1">1. Pengertian Persamaan Linear</h2>
+        <p>Persamaan linear adalah persamaan aljabar yang variabelnya memiliki <strong>pangkat tertinggi satu</strong>, dan jika digambarkan dalam grafik koordinat, hasilnya akan berbentuk <strong>garis lurus</strong>.</p>
+        <p>Persamaan ini menghubungkan satu atau lebih variabel independen untuk membentuk sebuah fungsi linear. Umumnya, struktur persamaan ini terdiri dari komponen-komponen berikut:</p>
+        <ul class="content-list">
+            <li><strong>Variabel:</strong> Lambang yang nilainya bisa berubah (seperti $x$ dan $y$).</li>
+            <li><strong>Koefisien:</strong> Angka pengali yang berada tepat di depan variabel.</li>
+            <li><strong>Konstanta:</strong> Nilai tetap berbentuk angka murni tanpa diikuti oleh variabel.</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-2">2. Contoh 1: Garis Berpotongan</h2>
+        <p>Agar dua garis pada koordinat Cartesius saling <strong>berpotongan</strong> di satu titik, syarat utamanya adalah nilai kemiringan garis (gradien atau koefisien di depan variabel $x$) harus <strong>berbeda</strong>. Berikut adalah contoh persamaannya:</p>
+        
+        <div class="equation-container">
+            $$
+            \begin{cases}
+            \begin{aligned}
+            g_1 &: y = 3x + 2 \\
+            g_2 &: y = -2x + 7
+            \end{aligned}
+            \end{cases}
+            $$
+        </div>
+        
+        <p>Karena kemiringan garis pertama adalah $3$ dan garis kedua adalah $-2$, kedua garis ini pasti akan saling berpotongan jika digambarkan, yaitu tepat pada titik koordinat $(1, 5)$.</p>
+
+        <img src="contoh1.png" alt="Garis Berpotongan" class="image-placeholder">
+       
+
+        <h2 class="section-title" id="sec-3">3. Contoh 2: Garis Lurus Sejajar</h2>
+        <p>Agar dua garis posisinya <strong>sejajar</strong> (artinya searah dan tidak akan pernah berpotongan meski diperpanjang sampai tak terhingga), syaratnya adalah nilai kemiringan garis (gradien) harus <strong>sama</strong>, tetapi angka konstantanya harus <strong>berbeda</strong>.</p>
+
+        <div class="equation-container">
+            $$
+            \begin{cases}
+            \begin{aligned}
+            g_1 &: y = 2x + 3 \\
+            g_2 &: y = 2x - 2
+            \end{aligned}
+            \end{cases}
+            $$
+        </div>
+
+        <p>Kedua persamaan di atas memiliki nilai kemiringan yang sama yaitu $2$. Namun, karena memotong sumbu-$y$ di titik yang berbeda ($+3$ dan $-2$), garis tersebut akan membentang berdampingan secara konsisten.</p>
+
+        <img src="contoh2.png" alt="Garis Sejajar" class="image-placeholder">
+
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>DAFTAR ISI</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">1. Pengertian Persamaan Linear</a></li>
+            <li><a href="#sec-2">2. Contoh 1: Garis Berpotongan</a></li>
+            <li><a href="#sec-3">3. Contoh 2: Garis Sejajar</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>
