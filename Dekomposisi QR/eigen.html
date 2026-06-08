@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dekomposisi QR dan Nilai Eigen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            tags: 'ams'
+          }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #161616;
+            --sidebar-bg: #161616;
+            --text-main: #d1d1d1;
+            --text-heading: #ffffff;
+            --active-item-bg: #323b49;
+            --accent-color: #ffffff;
+            --border-color: #2e2e2e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; line-height: 1.6; }
+        
+        /* Content Styles */
+        .main-content { flex-grow: 1; padding: 50px 80px; overflow-y: auto; position: relative; }
+        .content-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .main-content h1 { color: var(--text-heading); font-size: 36px; font-weight: 800; line-height: 1.2; max-width: 700px; }
+        p { margin-bottom: 20px; font-size: 15px; text-align: justify; }
+        h2.section-title { color: var(--text-heading); font-size: 20px; margin-top: 40px; margin-bottom: 15px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        ul.content-list, ol.content-list { margin-left: 20px; margin-bottom: 20px; }
+        ul.content-list li, ol.content-list li { margin-bottom: 10px; font-size: 15px; }
+        strong { color: var(--text-heading); }
+        .equation-container { font-size: 16px; margin: 20px 0; overflow-x: auto; color: var(--text-heading); background: var(--active-item-bg); padding: 15px; border-radius: 8px; }
+        
+        .kotak-analogi { background: #1a2332; border-left: 4px solid #007acc; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
+        .kotak-analogi p { margin-bottom: 0; }
+        
+        .code-container { background: #0d1117; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: monospace; font-size: 13px; color: #c9d1d9; margin-bottom: 30px; border: 1px solid var(--border-color); line-height: 1.5; }
+        .code-comment { color: #8b949e; font-style: italic; } 
+        .code-keyword { color: #ff7b72; }
+        .code-function { color: #d2a8ff; }
+        .code-string { color: #a5d6ff; }
+
+        /* TOC Styles */
+        .sidebar-right { width: 250px; padding: 30px 20px; flex-shrink: 0; border-left: 1px solid var(--border-color); overflow-y: auto; background-color: var(--bg-color); }
+        .sidebar-right h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-heading); margin-bottom: 20px; display: flex; align-items: center; }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 12px; }
+        .toc-list a { color: var(--text-main); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+        .toc-list a:hover { color: var(--accent-color); }
+        
+        .wadah-tombol-bawah { display: flex; justify-content: flex-end; margin-top: 50px; margin-bottom: 20px; padding-top: 20px; border-top: 1px dashed var(--border-color); }
+        .btn-simulasi { display: inline-flex; align-items: center; background-color: #007acc; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; border: none;}
+        .btn-simulasi:hover { background-color: #005f9e; }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Dekomposisi QR dan Nilai Eigen</h1>
+        </div>
+
+        <p>Dekomposisi QR adalah metode memfaktorkan sebuah matriks menjadi matriks ortogonal $Q$ dan matriks segitiga atas $R$. Berikut adalah penjabaran langkah demi langkah komputasi matematis beserta implementasi kodenya menggunakan metode Gram-Schmidt.</p>
+
+        <h2 class="section-title" id="sec-1">BAGIAN 1: Tampilkan Matriks A Awal</h2>
+        <p>Kita akan menggunakan matriks bujur sangkar $2 \times 2$ sebagai objek komputasi. Matriks awal yang kita gunakan adalah:</p>
+        <div class="equation-container">
+            $$A = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}$$
+        </div>
+        <p>Dalam bahasa pemrograman Python, kita menggunakan library <code>NumPy</code> dan <code>SymPy</code> untuk mendeklarasikan matriks ini.</p>
+        <div class="code-container">
+<pre><code><span class="code-keyword">import</span> numpy <span class="code-keyword">as</span> np
+<span class="code-keyword">from</span> sympy <span class="code-keyword">import</span> Matrix, sqrt, N, pprint
+
+<span class="code-comment"># Matriks A</span>
+A = Matrix([
+    [5, 2],
+    [2, 2]
+])
+<span class="code-function">print</span>(<span class="code-string">"Matriks A = "</span>)
+<span class="code-function">pprint</span>(A)</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-2">BAGIAN 2: Normalisasi Kolom Pertama ($q_1$)</h2>
+        <p>Langkah pertama adalah mengekstrak vektor kolom pertama ($a_1$) dari matriks $A$, yaitu $\begin{bmatrix} 5 \\ 2 \end{bmatrix}$. Kemudian kita cari panjang vektornya dan menormalisasikannya untuk mendapatkan <strong>$q_1$</strong>.</p>
+        <div class="equation-container">
+            $$\|a_1\| = \sqrt{5^2 + 2^2} = \sqrt{29}$$
+            $$q_1 = \frac{a_1}{\|a_1\|} = \begin{bmatrix} \frac{5}{\sqrt{29}} \\ \frac{2}{\sqrt{29}} \end{bmatrix}$$
+        </div>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Ambil kolom pertama (a1)</span>
+a1 = A[:, 0]
+
+<span class="code-comment"># Hitung panjang vektor a1</span>
+panjang_a1 = <span class="code-function">sqrt</span>(a1[0]**2 + a1[1]**2)
+
+<span class="code-comment"># Normalisasi untuk mencari q1</span>
+q1 = a1 / panjang_a1
+<span class="code-function">print</span>(<span class="code-string">"q1 ="</span>)
+<span class="code-function">pprint</span>(q1)</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-3">BAGIAN 3 & 4: Hitung Dot Product dan Proyeksi</h2>
+        <p>Kita ekstrak vektor kolom kedua ($a_2 = \begin{bmatrix} 2 \\ 2 \end{bmatrix}$). Lalu, kita cari <em>dot product</em> antara $q_1$ dengan $a_2$. Hasil dot product ini dikalikan kembali dengan $q_1$ untuk mendapatkan vektor <strong>proyeksi</strong>.</p>
+        <div class="equation-container">
+            $$Dot = q_1 \cdot a_2$$
+            $$Proyeksi = Dot \times q_1$$
+        </div>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Ambil kolom kedua (a2)</span>
+a2 = A[:, 1]
+
+<span class="code-comment"># Dot product q1 dan a2</span>
+dot = q1.<span class="code-function">dot</span>(a2)
+<span class="code-function">print</span>(<span class="code-string">"q1 . a2 ="</span>, dot)
+
+<span class="code-comment"># Hasil dot dikali q1 (Proyeksi)</span>
+proyeksi = dot * q1
+<span class="code-function">print</span>(<span class="code-string">"Hasil Proyeksi ="</span>)
+<span class="code-function">pprint</span>(proyeksi)</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-4">BAGIAN 5 & 6: Hitung Vektor $v_2$ (atau $u_2$) dan Cari $q_2$</h2>
+        <p>Selanjutnya, kita cari vektor tegak lurus ($v_2$) dengan mengurangkan $a_2$ dengan nilai proyeksi tadi. Vektor $v_2$ ini kemudian <strong>dinormalisasi</strong> seperti cara sebelumnya untuk mendapatkan matriks <strong>$q_2$</strong>.</p>
+        <div class="equation-container">
+            $$v_2 = a_2 - Proyeksi$$
+            $$q_2 = \frac{v_2}{\|v_2\|} = \begin{bmatrix} \frac{-2}{\sqrt{29}} \\ \frac{5}{\sqrt{29}} \end{bmatrix}$$
+        </div>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Hitung vektor tegak lurus (v2)</span>
+v2 = a2 - proyeksi
+<span class="code-function">print</span>(<span class="code-string">"v2 ="</span>)
+<span class="code-function">pprint</span>(v2)
+
+<span class="code-comment"># Cari panjang v2 dan normalisasi untuk q2</span>
+panjang_v2 = <span class="code-function">sqrt</span>(v2.<span class="code-function">dot</span>(v2))
+q2 = v2 / panjang_v2
+<span class="code-function">print</span>(<span class="code-string">"q2 ="</span>)
+<span class="code-function">pprint</span>(q2)</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-5">BAGIAN 7: Membentuk Matriks $Q$ dan $R$</h2>
+        <p>Vektor $q_1$ dan $q_2$ digabung sejajar (horizontal) menjadi <strong>Matriks $Q$</strong>. Sedangkan <strong>Matriks $R$</strong> didapatkan dari perkalian Transpose $Q$ dengan Matriks $A$ awal.</p>
+        <div class="equation-container">
+            $$Q = [q_1 \quad q_2]$$
+            $$R = Q^T \times A$$
+        </div>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Matriks Q (menggabungkan q1 dan q2)</span>
+Q = Matrix.<span class="code-function">hstack</span>(q1, q2)
+<span class="code-function">print</span>(<span class="code-string">"Matriks Q ="</span>)
+<span class="code-function">pprint</span>(Q)
+
+<span class="code-comment"># Matriks R (Q transpose dikali A)</span>
+R = Q.T * A
+<span class="code-function">print</span>(<span class="code-string">"Matriks R ="</span>)
+<span class="code-function">pprint</span>(R)</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-6">BAGIAN 8 & 9: Verifikasi dan Hitung Iterasi A1</h2>
+        <p>Jika kita kalikan ulang $Q \times R$, hasilnya akan sama dengan matriks $A$. Namun, untuk mencari Nilai Eigen, kita harus <strong>membalik perkaliannya</strong> menjadi $A_1 = R \times Q$.</p>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Verifikasi Q * R = A</span>
+verifikasi = Q * R
+<span class="code-function">print</span>(<span class="code-string">"Q * R = "</span>)
+<span class="code-function">pprint</span>(verifikasi)
+
+<span class="code-comment"># Hitung Matriks A Baru (A1 = R * Q)</span>
+A1 = R * Q
+<span class="code-function">print</span>(<span class="code-string">"A1 (R * Q) = "</span>)
+<span class="code-function">pprint</span>(<span class="code-function">N</span>(A1, 5)) <span class="code-comment"># Tampilkan dalam desimal</span></code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-7">BAGIAN 10: QR Iteration (10 Iterasi)</h2>
+        <p>Langkah membalik perkalian ($R \times Q$) di atas diulang (iterasi) berkali-kali. Semakin banyak diulang, nilai diagonal utamanya akan mengerucut membentuk <strong>Nilai Eigen</strong>.</p>
+        <div class="code-container">
+<pre><code><span class="code-comment"># Looping QR Iteration</span>
+A_iter = Matrix([[5, 2], [2, 2]])
+
+<span class="code-keyword">for</span> k <span class="code-keyword">in</span> <span class="code-function">range</span>(1, 11):
+    a1_i = A_iter[:, 0]
+    a2_i = A_iter[:, 1]
+    
+    <span class="code-comment"># Proses Gram-Schmidt</span>
+    q1_i = a1_i / <span class="code-function">sqrt</span>(a1_i.<span class="code-function">dot</span>(a1_i))
+    proj = q1_i.<span class="code-function">dot</span>(a2_i) * q1_i
+    v2_i = a2_i - proj
+    q2_i = v2_i / <span class="code-function">sqrt</span>(v2_i.<span class="code-function">dot</span>(v2_i))
+    
+    <span class="code-comment"># Bentuk Q dan R</span>
+    Q_i = Matrix.<span class="code-function">hstack</span>(q1_i, q2_i)
+    R_i = Q_i.T * A_iter
+    
+    <span class="code-comment"># Timpa matriks dengan perkalian terbalik</span>
+    A_iter = R_i * Q_i
+    
+    <span class="code-function">print</span>(<span class="code-string">f"A{k} ="</span>)
+    <span class="code-function">pprint</span>(<span class="code-function">N</span>(A_iter, 5))</code></pre>
+        </div>
+
+        <h2 class="section-title" id="sec-8">BAGIAN 11: Verifikasi Nilai Eigen dengan NumPy</h2>
+        <p>Terakhir, untuk membuktikan apakah hasil iterasi manual kita akurat (yang berujung di angka 6 dan 1), kita cocokkan hasilnya dengan kalkulator matriks bawaan library NumPy menggunakan fungsi <code>np.linalg.eig()</code>.</p>
+        <div class="code-container">
+<pre><code>A_np = np.<span class="code-function">array</span>([[5, 2], [2, 2]])
+
+<span class="code-comment"># np.linalg.eig mencari nilai dan vektor eigen secara otomatis</span>
+eigenvalues, eigenvectors = np.linalg.<span class="code-function">eig</span>(A_np)
+
+<span class="code-function">print</span>(<span class="code-string">"Nilai Eigen Asli:"</span>)
+<span class="code-function">print</span>(eigenvalues)
+
+<span class="code-function">print</span>(<span class="code-string">"\nVektor Eigen Asli:"</span>)
+<span class="code-function">print</span>(eigenvectors)</code></pre>
+        </div>
+
+        <div class="wadah-tombol-bawah">
+            <a href="https://colab.research.google.com/drive/1_xMSKnJl3dPy7oU9ga3h3Uh56Pt1DZgt?usp=sharing" class="btn-simulasi" target="_blank" rel="noopener noreferrer">
+                💻 Coba Eksekusi di Google Colab &rarr;
+            </a>
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <h3>CONTENTS</h3>
+        <ul class="toc-list">
+            <li><a href="#sec-1">Bagian 1: Matriks Awal</a></li>
+            <li><a href="#sec-2">Bagian 2: Vektor q1</a></li>
+            <li><a href="#sec-3">Bagian 3 & 4: Proyeksi</a></li>
+            <li><a href="#sec-4">Bagian 5 & 6: Vektor q2</a></li>
+            <li><a href="#sec-5">Bagian 7: Matriks Q dan R</a></li>
+            <li><a href="#sec-6">Bagian 8 & 9: Hitung A1</a></li>
+            <li><a href="#sec-7">Bagian 10: QR Iteration</a></li>
+            <li><a href="#sec-8">Bagian 11: Verifikasi NumPy</a></li>
+        </ul>
+    </aside>
+
+</body>
+</html>
